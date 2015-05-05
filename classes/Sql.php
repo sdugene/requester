@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Engine;
+namespace Requester;
 
 /**
  * Description of Sql
@@ -60,6 +60,23 @@ abstract class Sql
             return false;
         }
     }
+
+
+    protected function fill($result = [])
+    {
+        foreach ($result as $key => $value) {
+            if (property_exists($this, $key)) {
+                $reflector = new \ReflectionClass(get_class($this));
+
+                $prop = $reflector->getProperty($key);
+                if (!$prop->isPrivate()) {
+                    $this->$key = $value;
+                }
+            } else {
+                $this->$key = $value;
+            }
+        }
+    }
     
     
     private function findOperator($key, $value)
@@ -95,22 +112,51 @@ abstract class Sql
         }
         return $publics;
     }
-
-
-    protected function fill($result = [])
+    
+    
+    protected function join($join)
     {
-        foreach ($result as $key => $value) {
-            if (property_exists($this, $key)) {
-                $reflector = new \ReflectionClass(get_class($this));
-
-                $prop = $reflector->getProperty($key);
-                if (!$prop->isPrivate()) {
-                    $this->$key = $value;
-                }
-            } else {
-                $this->$key = $value;
+        $sql = '';
+        foreach ($join as $method => $array) {
+            $sql .= strtoupper($method).' JOIN '.$array['table'];
+            $sql .= $this->joinCriteria($array['criteria'], $array['table']);
+        }
+        return $sql;
+    }
+    
+    
+    private function joinCriteria($criteria, $table)
+    {
+        $sql = '' ;
+        foreach ($criteria as $key => $value) {
+            $json = json_encode($value);
+            $search = ['#parent#','#table#'];
+            $replace = [$this->tableName, $table];
+            
+            $jsonFinal = str_replace($search, $replace, $json);
+            $value = json_decode($jsonFinal, true);
+            foreach ($value as $operator => $data) {
+                $sql .= ' '.$key.' '.$this->findOperator($operator, $data);
             }
         }
+        return $sql;
+    }
+    
+    
+    protected function order($order)
+    {
+        $orderQuery = '';
+        if ($order !== false) {
+            $orderList = '';
+            foreach($order as $key => $value) {
+                if ($orderList !== '') {
+                    $orderList .= ', ';
+                }
+                $orderList .= $key.' '.strtoupper($value);
+            }
+            $orderQuery = ' ORDER BY '.trim($orderList);
+        }
+        return $orderQuery;
     }
 
 

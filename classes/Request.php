@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-namespace Engine;
+namespace Requester;
 
 /**
  * Description of Request
@@ -77,17 +77,21 @@ class Request extends Sql
     public function findByCriteria($criteria = [], $maxLine = false, $order = false)
     {
         $sql = $this->criteria($criteria);
-        $orderQuery = '';
-        if ($order !== false) {
-            $orderList = '';
-            foreach($order as $key => $value) {
-                if ($orderList !== '') {
-                    $orderList .= ', ';
-                }
-                $orderList .= $key.' '.strtoupper($value);
-            }
-            $orderQuery = ' ORDER BY '.trim($orderList);
+        $orderQuery = $this->order($order);
+        return $this->query($sql.$orderQuery, $maxLine);
+    }
+
+
+    public function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false)
+    {
+        if (empty($join)) {
+            return findByCriteria($criteria, $maxLine, $order);
         }
+        
+        $sql = $this->criteria($criteria);
+        $sql .= $this->join($join);
+        $orderQuery = $this->order($order);
+        
         return $this->query($sql.$orderQuery, $maxLine);
     }
 
