@@ -174,7 +174,7 @@ abstract class Sql
                 $sql->closeCursor();
                 return $aResult[0];
             } else {
-                $class = 'Engine\\'.ucfirst($this->tableName);
+                $class = 'Engine\Models\\'.ucfirst($this->tableName);
                 $aResult = $sql->fetchAll(\PDO::FETCH_CLASS, $class);
                 $sql->closeCursor();
                 return $aResult;
