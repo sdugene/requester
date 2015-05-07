@@ -54,7 +54,7 @@ $neededConstants = [
     "MYSQL_PWD" => 'root',
     "MYSQL_HOST" => 'localhost',
     "MYSQL_DB" => 'database',
-    "MODELS_NAMESPACE" => 'Models\\'
+    "MODELS_NAMESPACE" => '\Models\\'
 ];
 
 checkConstants($neededConstants);
