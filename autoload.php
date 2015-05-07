@@ -12,9 +12,19 @@ namespace Requester;
  * Autoloader
  * Use if don't use composer autoloader 
  */
-function autoload($class) {
+function autoload($class)
+{
     if (preg_match('/'.__NAMESPACE__.'\\\/', $class)){
         require_once __DIR__ . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+    }
+}
+
+function checkConstants($constants)
+{
+    foreach($constants as $constant => $value) {
+        if (!defined($constant)) {
+            define($constant, $value);
+        }
     }
 }
 
@@ -38,6 +48,16 @@ function requireAll($folder)
         }
     }
 }
+
+$neededConstants = [
+    "MYSQL_USER" => 'root',
+    "MYSQL_PWD" => 'root',
+    "MYSQL_HOST" => 'localhost',
+    "MYSQL_DB" => 'database',
+    "MODELS_NAMESPACE" => 'Models\\'
+];
+
+checkConstants($neededConstants);
 
 spl_autoload_register('Requester\autoload');
 load('Requester');

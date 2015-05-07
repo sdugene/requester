@@ -57,7 +57,7 @@ class Request extends Sql
         }
         if (is_array($extenser) && $extenser[0] !== 'all') {
             foreach($extenser as $value) {
-                $class = '\Engine\Models\\'.$value;
+                $class = MODELS_NAMESPACE . $value;
                 $child = new $class($this->id);
                 $className = lcfirst($value);
                 $this->$className = $child->getPublic();
