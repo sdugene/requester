@@ -81,8 +81,8 @@ abstract class Sql
     
     private function findOperator($key, $value)
     {
-        $operators = ['>', '>=', '<', '<=', '!='];
-        $arrayOperators = ['IN', 'NOT IN'];
+        $operators = ['=', '>', '>=', '<', '<=', '!='];
+        $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
         if (is_array($value) && in_array($key, $operators)) {
             return addslashes($value[0]) . " " . $key . " '".addslashes($value[1])."'";
@@ -128,15 +128,13 @@ abstract class Sql
     private function joinCriteria($criteria, $table)
     {
         $sql = '' ;
-        foreach ($criteria as $key => $value) {
-            $json = json_encode($value);
-            $search = ['#parent#','#table#'];
-            $replace = [$this->tableName, $table];
-            
-            $jsonFinal = str_replace($search, $replace, $json);
-            $value = json_decode($jsonFinal, true);
-            foreach ($value as $operator => $data) {
-                $sql .= ' '.$key.' '.$this->findOperator($operator, $data);
+        foreach ($criteria as $boolean => $array) {
+            foreach ($array as $key => $value) {
+                if ($this->findOperator($key, $value)) {
+                    $sql .= ' '.$boolean.' '.$this->findOperator($key, $value);
+                } else {
+                    $sql .= ' '.$boolean.' '.addslashes($key)." = ".addslashes($value);
+                }
             }
         }
         return $sql;

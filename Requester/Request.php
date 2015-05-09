@@ -88,8 +88,8 @@ class Request extends Sql
             return findByCriteria($criteria, $maxLine, $order);
         }
         
-        $sql = $this->criteria($criteria);
-        $sql .= $this->join($join);
+        $sql = $this->join($join);
+        $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);
         
         return $this->query($sql.$orderQuery, $maxLine);
