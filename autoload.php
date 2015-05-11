@@ -10,7 +10,7 @@ namespace Requester;
 
 /**
  * Autoloader
- * Use if don't use composer autoloader 
+ * To include if you don't use composer autoloader 
  */
 function autoload($class)
 {
@@ -61,5 +61,3 @@ checkConstants($neededConstants);
 
 spl_autoload_register('Requester\autoload');
 load('Requester');
-
-
