@@ -92,7 +92,7 @@ class Request extends Sql
         $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);
         
-        return $this->query($sql.$orderQuery, $maxLine);
+        return $this->query($sql.$orderQuery, $maxLine, '*, '.$this->tableName.'.id as id');
     }
 
 

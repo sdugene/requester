@@ -118,8 +118,9 @@ abstract class Sql
     {
         $sql = '';
         foreach ($join as $method => $array) {
-            $sql .= strtoupper($method).' JOIN '.$array['table'];
-            $sql .= $this->joinCriteria($array['criteria'], $array['table']);
+            $table = key($array);
+            $sql .= strtoupper($method).' JOIN '.$table;
+            $sql .= $this->joinCriteria($array[$table], $table);
         }
         return $sql;
     }
@@ -158,13 +159,13 @@ abstract class Sql
     }
 
 
-    protected function query($query, $maxLine = false)
+    protected function query($query, $maxLine = false, $column = '*')
     {
         $limit = '' ;
         if($maxLine !== false && is_numeric($maxLine)){
             $limit = " LIMIT " . $maxLine ;
         }
-        $sql = $this->queryPDO("SELECT * FROM ".$this->tableName." ".$query.$limit);
+        $sql = $this->queryPDO("SELECT ".$column." FROM ".$this->tableName." ".$query.$limit);
 
         if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {
