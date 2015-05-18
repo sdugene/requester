@@ -27,26 +27,23 @@ class Request extends Sql
         }
         $this->fill($result) ;
     }
-    
-    
-    public function set($name, $value)
-    {
-        if (!in_array($name, $this->forbiden)){
-            $this->$name = $value;
-            if (isset($this->id)) {
-                $input = [$name => $value];
-                $criteria = ['id' => $this->id];
-                $this->update($input, $criteria);
-            }
-        } else {
-            trigger_error($this->tableName." - Set method forbiden on '".$name."' attribute", E_USER_ERROR);
-        }
+
+
+    public function count($input = 'id', $criteria = []) {
+        $sqlPart = $this->criteria($criteria);
+        $query = "SELECT count(".$input.") as count FROM ".$this->tableName.$sqlPart ;
+        $sql = $this->queryPDO($query);
+
+        $result = $sql->fetch(\PDO::FETCH_ASSOC);
+        return $result['count'];
     }
-    
-    
-    public function addRandId()
-    {
-        $this->randId = md5(uniqid());
+
+
+    public function delete($criteria) {
+        $where = $this->criteria($criteria);
+        $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1"  ;
+        $sql = $this->queryPDO($query);
+        $sql->closeCursor();
     }
 
 
@@ -129,6 +126,21 @@ class Request extends Sql
         $query = "INSERT INTO ".$this->tableName." (".$columns.") VALUES (".$values.")" ;
         return $this->queryPDO($query);
     }
+    
+    
+    public function set($name, $value)
+    {
+        if (!in_array($name, $this->forbiden)){
+            $this->$name = $value;
+            if (isset($this->id)) {
+                $input = [$name => $value];
+                $criteria = ['id' => $this->id];
+                $this->update($input, $criteria);
+            }
+        } else {
+            trigger_error($this->tableName." - Set method forbiden on '".$name."' attribute", E_USER_ERROR);
+        }
+    }
 
 
     public function update($inputs, $criteria) {
@@ -150,23 +162,5 @@ class Request extends Sql
         $query = "UPDATE ".$this->tableName." SET ".$values." ".$where ;
         $sql = $this->queryPDO($query);
         $sql->closeCursor();
-    }
-
-
-    public function delete($criteria) {
-        $where = $this->criteria($criteria);
-        $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1"  ;
-        $sql = $this->queryPDO($query);
-        $sql->closeCursor();
-    }
-
-
-    public function count($input = 'id', $criteria = []) {
-        $sqlPart = $this->criteria($criteria);
-        $query = "SELECT count(".$input.") as count FROM ".$this->tableName.$sqlPart ;
-        $sql = $this->queryPDO($query);
-
-        $result = $sql->fetch(\PDO::FETCH_ASSOC);
-        return $result['count'];
     }
 }
