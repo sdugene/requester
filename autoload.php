@@ -15,7 +15,7 @@ namespace Requester;
 function autoload($class)
 {
     if (preg_match('/'.__NAMESPACE__.'\\\/', $class)){
-        require_once __DIR__ . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+        require_once __DIR__ . '/' . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
     }
 }
 
@@ -32,10 +32,10 @@ function load($folder)
 {
     if (is_array($folder)) {
         foreach ($folder as $value) {
-            requireAll(__DIR__ . $value);
+            requireAll(__DIR__ . '/' . $value);
         }
     } else {
-       requireAll(__DIR__ . $folder);
+       requireAll(__DIR__ . '/' . $folder);
     }
 }
 
