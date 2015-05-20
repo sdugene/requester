@@ -81,7 +81,7 @@ abstract class Sql
     
     private function findOperator($key, $value)
     {
-        $operators = ['=', '>', '>=', '<', '<=', '!='];
+        $operators = ['=', '>', '>=', '<', '<=', '!=', 'LIKE'];
         $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
         if (is_array($value) && in_array($key, $operators)) {
