@@ -20,19 +20,8 @@ abstract class Sql
     
     
     protected function connexionPDO() {
-        $login = MYSQL_USER;
-        $pwd = MYSQL_PWD;
-        $host = MYSQL_HOST;
-        $base = MYSQL_DB;
-
-        try {
-            $bdd = new \PDO('mysql:host='.$host.';dbname='.$base, $login, $pwd);
-            $bdd->exec('SET CHARACTER SET UTF8');
-            $bdd->setAttribute(\PDO::ATTR_EMULATE_PREPARES,false);
-            return $bdd ;
-        } catch(Exception $e) {
-            die('Erreur : '.$e->getMessage());
-        }
+        $pdo = Pdo::getInstance();
+        return $pdo->getBdd();
     }
     
     
