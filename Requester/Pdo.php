@@ -13,22 +13,11 @@ namespace Requester;
  *
  * @author Sébastien Dugène
  */
-class Pdo {
- 
-    /**
-     * @var Singleton
-     * @access private
-     * @static
-     */
-    private static $_instance = null;
+class Pdo
+{
     private static $_bdd = null;
- 
-    /**
-     * Constructeur de la classe
-     *
-     * @param void
-     * @return void
-     */
+    
+    
     private static function connexion()
     {
         $login = MYSQL_USER;
@@ -45,34 +34,13 @@ class Pdo {
             die('Erreur : '.$e->getMessage());
         }
     }
- 
-    /**
-     * Méthode qui crée l'unique instance de la classe
-     * si elle n'existe pas encore puis la retourne.
-     *
-     * @param void
-     * @return Singleton
-     */
-    public static function getInstance()
-    {
-        if(is_null(self::$_instance)) {
-            self::$_instance = new Pdo();  
-        }
-        return self::$_instance;
-    }
- 
-    /**
-     * Méthode qui crée l'unique instance de la connexion
-     * si elle n'existe pas encore puis la retourne.
-     *
-     * @param void
-     * @return Singleton
-     */
+    
+    
     public static function getBdd()
     {
         if(is_null(self::$_bdd)) {
             self::$_bdd = self::connexion();
-            \Engine\Functions\Functions::print2log('connexion');
+            //\Engine\Functions\Functions::print2log('connexion');
         }
         return self::$_bdd;
     }

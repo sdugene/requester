@@ -19,12 +19,6 @@ abstract class Sql
     protected $forbiden;
     
     
-    protected function connexionPDO() {
-        $pdo = Pdo::getInstance();
-        return $pdo->getBdd();
-    }
-    
-    
     protected function criteria($criteria, $operator = 'AND', $sql = '')
     {
         foreach ($criteria as $key => $value) {
@@ -174,7 +168,7 @@ abstract class Sql
 
 
     protected function queryPDO($query) {
-        $bdd = $this->connexionPDO() ;
+        $bdd = Pdo::getBdd();
         $sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
 
         $fd = fopen( ROOT . "debug/sql.log", "a+");
@@ -186,8 +180,8 @@ abstract class Sql
             $sql->execute();
             fwrite($fd, date('Y-m-d H:i:s').' - '.$query.' - '.$sql->rowCount().' ligne(s) affectée(s)'."\n");
             if (preg_match("/INSERT/i", $query)) {
-                return $bdd->lastInsertId();
                 $sql->closeCursor();
+                return $bdd->lastInsertId();
             } else {
                 return $sql;	
             }
