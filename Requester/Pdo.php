@@ -17,6 +17,10 @@ class Pdo
 {
     private static $_bdd = null;
     
+    private function __construct(){
+        // I must be empty
+    }
+    
     
     private static function connexion()
     {
