@@ -25,7 +25,10 @@ class Request extends Sql
         } elseif (is_array($input)) {
             $result = $this->findByCriteria($input, 1) ;
         }
-        $this->fill($result) ;
+        
+        if ($result) {
+            $this->fill($result) ;
+        }
     }
 
 
@@ -100,7 +103,10 @@ class Request extends Sql
         } elseif (is_array($input)) {
             $result = $this->findByCriteria($input, $maxLine, $order) ;
         }
-        $this->fill($result) ;         
+        
+        if ($result) {
+            $this->fill($result) ;
+        }      
     }
 
 
