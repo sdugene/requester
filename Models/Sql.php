@@ -48,17 +48,28 @@ abstract class Sql
     protected function fill($result = [])
     {
         foreach ($result as $key => $value) {
-            if (property_exists($this, $key)) {
-                $reflector = new \ReflectionClass(get_class($this));
-
-                $prop = $reflector->getProperty($key);
-                if (!$prop->isPrivate()) {
-                    $this->$key = $value;
-                }
-            } else {
-                $this->$key = $value;
-            }
+            $this->$key = $this->findByVisibility($key, $value, ['public', 'protected']);
         }
+    }
+    
+    
+    private function findByVisibility ($key, $value, $visibility)
+    {
+        $reflector = new \ReflectionClass(get_class($this));
+        if (property_exists($this, $key)) {
+            $prop = $reflector->getProperty($key);
+            if (in_array('public', $visibility) && $prop->isPublic()) {
+                return $value;
+            }
+
+            if (in_array('protected', $visibility) && $prop->isProtected()) {
+                return $value;
+            }
+        } else {
+            return $value;
+        }
+        
+        return NULL;
     }
     
     
@@ -82,16 +93,7 @@ abstract class Sql
     {
         $publics = array();
         foreach ($this as $key => $value) {
-            if (property_exists($this, $key)) {
-                $reflector = new \ReflectionClass(get_class($this));
-
-                $prop = $reflector->getProperty($key);
-                if (!$prop->isPrivate() && !$prop->isProtected()) {
-                    $publics[$key] = $value;
-                }
-            } else {
-                $publics[$key] = $value;
-            }
+            $publics[$key] = $this->findByVisibility($key, $value, ['public']);
         }
         return $publics;
     }
@@ -109,7 +111,7 @@ abstract class Sql
     }
     
     
-    private function joinCriteria($criteria, $table)
+    private function joinCriteria($criteria)
     {
         $sql = '' ;
         foreach ($criteria as $boolean => $array) {

@@ -50,24 +50,6 @@ class Request extends Sql
     }
 
 
-    public function extend($extenser = ['all'])
-    {
-        if ($extenser[0] === 'all') {
-            $extenser = $this->extenser;
-        }
-        if (is_array($extenser) && $extenser[0] !== 'all') {
-            foreach($extenser as $value) {
-                $class = MODELS_NAMESPACE . $value;
-                $child = new $class($this->id);
-                $className = lcfirst($value);
-                $this->$className = $child->getPublic();
-            }
-        } else {
-            return false ;
-        }
-    }
-
-
     public function findById($id)
     {
         return $this->query("WHERE id = '".$id."'", 1);

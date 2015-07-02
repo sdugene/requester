@@ -44,7 +44,6 @@ class Pdo
     {
         if(is_null(self::$_bdd)) {
             self::$_bdd = self::connexion();
-            //\Engine\Functions\Functions::print2log('connexion');
         }
         return self::$_bdd;
     }
