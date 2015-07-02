@@ -68,8 +68,6 @@ abstract class Sql
         } else {
             return $value;
         }
-        
-        return NULL;
     }
     
     
