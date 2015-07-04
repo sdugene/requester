@@ -56,34 +56,36 @@ class Request extends Sql
     }
 
 
-    public function findByCriteria($criteria = [], $maxLine = false, $order = false)
+    public function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false)
     {
         $sql = $this->criteria($criteria);
         $orderQuery = $this->order($order);
-        return $this->query($sql.$orderQuery, $maxLine);
+        $groupQuery = $this->group($group);
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine);
     }
 
 
-    public function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false)
+    public function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
     {
         if (empty($join)) {
-            return findByCriteria($criteria, $maxLine, $order);
+            return findByCriteria($criteria, $maxLine, $order, $group);
         }
         
         $sql = $this->join($join);
         $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);
+        $groupQuery = $this->group($group);
         
-        return $this->query($sql.$orderQuery, $maxLine, '*, '.$this->tableName.'.id as id');
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '*, '.$this->tableName.'.id as id');
     }
 
 
-    public function hydrate($input = [], $maxLine = 1, $order = false)
+    public function hydrate($input = [], $maxLine = 1, $order = false, $group = false)
     {
         if (is_numeric($input)) {
             $result = $this->findById($input) ;
         } elseif (is_array($input)) {
-            $result = $this->findByCriteria($input, $maxLine, $order) ;
+            $result = $this->findByCriteria($input, $maxLine, $order, $group) ;
         }
         
         if ($result) {

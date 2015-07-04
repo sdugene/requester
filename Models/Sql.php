@@ -97,6 +97,23 @@ abstract class Sql
     }
     
     
+    protected function group($group)
+    {
+        $groupQuery = '';
+        if ($group !== false) {
+            $groupList = '';
+            foreach($group as $key => $value) {
+                if ($groupList !== '') {
+                    $groupList .= ', ';
+                }
+                $groupList .= $key.' '.strtoupper($value);
+            }
+            $groupQuery = ' GROUP BY '.trim($groupList);
+        }
+        return $groupQuery;
+    }
+    
+    
     protected function join($join)
     {
         $sql = '';
@@ -109,7 +126,7 @@ abstract class Sql
     }
     
     
-    private function joinCriteria($criteria, $table)
+    private function joinCriteria($criteria)
     {
         $sql = '' ;
         foreach ($criteria as $boolean => $array) {
