@@ -70,13 +70,13 @@ class Request extends Sql
         if (empty($join)) {
             return findByCriteria($criteria, $maxLine, $order, $group);
         }
-        
-        $sql = $this->join($join);
+        $jointer = $this->join($join);
+        $sql = $jointer['sql'];
         $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);
         $groupQuery = $this->group($group);
         
-        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '*, '.$this->tableName.'.id as id');
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $this->tableName.'.*, '.$jointer['column']);
     }
 
 

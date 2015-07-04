@@ -119,10 +119,28 @@ abstract class Sql
         $sql = '';
         foreach ($join as $method => $array) {
             $table = key($array);
+            $column = $this->getPrefixedColumn($table);
             $sql .= strtoupper($method).' JOIN '.$table;
             $sql .= $this->joinCriteria($array[$table], $table);
         }
-        return $sql;
+        return [
+            'sql' => $sql,
+            'column' => $column
+        ];
+    }
+    
+    
+    private function getPrefixedColumn($tableName)
+    {
+        $query = "DESCRIBE ".$tableName ;
+        $sql = $this->queryPDO($query);
+        $tableFields = $sql->fetchAll(\PDO::FETCH_COLUMN);
+        $sql->closeCursor();
+        
+        foreach ($tableFields as $key => $value) {
+            $tableFields[$key] = $tableName.'.'.$value.' as '.$tableName.'_'.$value;
+        }
+        return implode(', ', $tableFields);
     }
     
     
