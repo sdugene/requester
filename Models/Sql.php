@@ -25,6 +25,7 @@ abstract class Sql
             if ($sql !== '') {
                 $sql .= ' '.$operator.' ';
             }
+            $mysqlFunction = str_replace('mysql#','',$value);
             if ($this->findOperator($key, $value)){
                 $sql .= $this->findOperator($key, $value);
             } elseif (is_array($value)){
@@ -32,6 +33,8 @@ abstract class Sql
                 $sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
                 $sql .= addslashes($key)." = ".$value;
+            } elseif ($mysqlFunction != $value) {
+                $sql .= addslashes($key)." = '".$mysqlFunction;
             } else {
                 $sql .= addslashes($key)." = '".addslashes($value)."'";
             }
