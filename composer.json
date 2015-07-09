@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Requester\\": "vendor/siteoffice/requester/Models"
+            "Requester\\": "Models"
         }
     }
 }
