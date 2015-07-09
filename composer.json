@@ -1,0 +1,22 @@
+{
+    "name"        : "siteoffice/requester",
+    "type"        : "library",
+    "description" : "A Silex Edition. This project is SiteOffice's requester applications.",
+    "keywords"    : ["requester],
+    "homepage"    : "http://www.siteoffice.fr/",
+    "license"     : "MIT",
+    "authors"     : [
+        {
+            "name"  : "SiteOffice",
+            "email" : "webmaster@siteoffice.fr"
+        }
+    ],
+    "require": {
+        "jan-swiecki/simple-annotations"     : "~0.2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Requester\\": "vendor/siteoffice/requester/Models"
+        }
+    }
+}
