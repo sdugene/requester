@@ -2,7 +2,7 @@
     "name"        : "siteoffice/requester",
     "type"        : "library",
     "description" : "A Silex Edition. This project is SiteOffice's requester applications.",
-    "keywords"    : ["requester],
+    "keywords"    : ["requester"],
     "homepage"    : "http://www.siteoffice.fr/",
     "license"     : "MIT",
     "authors"     : [
