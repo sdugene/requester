@@ -11,6 +11,9 @@
             "email" : "webmaster@siteoffice.fr"
         }
     ],
+    "require": {
+        "jan-swiecki/simple-annotations"     : "~0.2.1"
+    },
     "autoload": {
         "psr-4": {
             "Requester\\": "Models"
