@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "jan-swiecki/simple-annotations"     : "~0.2.1"
+        "minime/annotations"     : "~2.0"
     },
     "autoload": {
         "psr-4": {
