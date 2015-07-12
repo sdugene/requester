@@ -32,11 +32,11 @@ abstract class Sql
                 $value = $this->criteria($value, $key);
                 $sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
-                $sql .= addslashes($key)." = ".$value;
+                $sql .= $this->tableName.'.'.$this->properties[$key]." = ".$value;
             } elseif ($value == 'NULL') {
-                $sql .= addslashes($key)." IS NULL";
+                $sql .= $this->tableName.'.'.$this->properties[$key]." IS NULL";
             } else {
-                $sql .= addslashes($key)." = '".addslashes($value)."'";
+                $sql .= $this->tableName.'.'.$this->properties[$key]." = '".addslashes($value)."'";
             }
         }
 
@@ -51,15 +51,18 @@ abstract class Sql
     protected function fill($result = [])
     {
         foreach ($result as $key => $value) {
-            if (property_exists($this, $key)) {
+			$columns = array_flip($this->properties);
+			if (!array_key_exists($key, $columns)) {
+				$this->$key = $value;
+			} elseif (property_exists($this, $columns[$key])) {
                 $reflector = new \ReflectionClass(get_class($this));
 
-                $prop = $reflector->getProperty($key);
+                $prop = $reflector->getProperty($columns[$key]);
                 if (!$prop->isPrivate()) {
-                    $this->$key = $value;
+                    $this->$columns[$key] = $value;
                 }
             } else {
-                $this->$key = $value;
+                $this->$columns[$key] = $value;
             }
         }
     }
@@ -71,10 +74,10 @@ abstract class Sql
         $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
         if (is_array($value) && in_array($key, $operators)) {
-            return addslashes($value[0]) . " " . $key . " '".addslashes($value[1])."'";
+            return addslashes($value[0]) . " " . $this->properties[$value] . " '".addslashes($value[1])."'";
         }
         elseif (is_array($value) && in_array($key, $arrayOperators)) {
-            return addslashes($value[0]) . " " . $key . " ".addslashes($value[1]);
+            return addslashes($value[0]) . " " . $this->properties[$value] . " ".addslashes($value[1]);
         }
         
         return false;
@@ -109,7 +112,7 @@ abstract class Sql
                 if ($groupList !== '') {
                     $groupList .= ', ';
                 }
-                $groupList .= $key.' '.strtoupper($value);
+                $groupList .= $this->properties[$key].' '.strtoupper($value);
             }
             $groupQuery = ' GROUP BY '.trim($groupList);
         }
@@ -155,7 +158,7 @@ abstract class Sql
                 if ($this->findOperator($key, $value)) {
                     $sql .= ' '.$boolean.' '.$this->findOperator($key, $value);
                 } else {
-                    $sql .= ' '.$boolean.' '.addslashes($key)." = ".addslashes($value);
+                    $sql .= ' '.$boolean.' '.$this->mapping->getValue($key)." = ".$this->mapping->getValue($value);
                 }
             }
         }
@@ -172,7 +175,7 @@ abstract class Sql
                 if ($orderList !== '') {
                     $orderList .= ', ';
                 }
-                $orderList .= $key.' '.strtoupper($value);
+                $orderList .= $this->properties[$key].' '.strtoupper($value);
             }
             $orderQuery = ' ORDER BY '.trim($orderList);
         }
@@ -194,10 +197,19 @@ abstract class Sql
                 $sql->closeCursor();
                 return $aResult[0];
             } else {
-                $class = MODELS_NAMESPACE . ucfirst($this->tableName);
-                $aResult = $sql->fetchAll(\PDO::FETCH_CLASS, $class);
+                /*$class = MODELS_NAMESPACE . ucfirst($this->tableName);
+                $aResult = $sql->fetchAll(\PDO::FETCH_CLASS, $class);*/
+				
+				$array = [];
+				$results = $sql->fetchAll(\PDO::FETCH_ASSOC);
+				$className = get_called_class();
+				foreach($results as $key => $value) {
+					$array[$key] = new $className();
+					$array[$key]->fill($value);
+				}
+				
                 $sql->closeCursor();
-                return $aResult;
+                return $array;
             }
         } else {
             return [];

@@ -15,20 +15,25 @@ namespace Requester;
  */
 class Request extends Sql
 {	
+	protected $properties;
     protected $tableName;
     protected $forbiden;
+	protected $mapping;
 
-    public function __construct($input)
+    public function __construct($input = '')
     {
-        if (is_numeric($input)) {
-            $result = $this->findById($input) ;
-        } elseif (is_array($input)) {
-            $result = $this->findByCriteria($input, 1) ;
-        }
-        
-        if ($result) {
-            $this->fill($result) ;
-        }
+		$this->getClassAnnotations();
+		if ($input !== '') {
+			if (is_numeric($input)) {
+				$result = $this->findById($input) ;
+			} elseif (is_array($input)) {
+				$result = $this->findByCriteria($input, 1) ;
+			}
+
+			if ($result) {
+				$this->fill($result) ;
+			}
+		}
     }
 
 
@@ -52,7 +57,11 @@ class Request extends Sql
 
     public function findById($id)
     {
-        return $this->query("WHERE id = '".$id."'", 1);
+		$criteria = [
+           'id' => $id
+        ];
+        
+        return $this->findByCriteria($criteria, 1);
     }
 
 
@@ -78,6 +87,15 @@ class Request extends Sql
         
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $this->tableName.'.*, '.$jointer['column']);
     }
+	
+	
+	private function getClassAnnotations()
+	{
+		$this->mapping = Mapping::getReader(get_called_class());
+		$this->tableName = $this->mapping->getClassMapping('Table')->name;
+		$this->forbiden = $this->mapping->getClassMapping('Forbiden')->columns;
+		$this->properties = $this->mapping->getPropertiesMapping();
+	}
 
 
     public function hydrate($input = [], $maxLine = 1, $order = false, $group = false)
@@ -104,7 +122,7 @@ class Request extends Sql
             if ($values !== '') {
                 $values .= ', ';
             }
-            $columns .= addslashes($key);
+            $columns .= addslashes($this->properties[$key]);
 
             $mysqlFunction = str_replace('mysql#','',$value);
             if ($mysqlFunction != $value) {
@@ -123,7 +141,7 @@ class Request extends Sql
         if (!in_array($name, $this->forbiden)){
             $this->$name = $value;
             if (isset($this->id)) {
-                $input = [$name => $value];
+                $input = [$this->properties[$name] => $value];
                 $criteria = ['id' => $this->id];
                 $this->update($input, $criteria);
             }
@@ -142,9 +160,9 @@ class Request extends Sql
 
             $mysqlFunction = str_replace('mysql#','',$value);
             if ($mysqlFunction != $value) {
-                $values .= addslashes($key)." = ".$mysqlFunction;
+                $values .= addslashes($this->properties[$key])." = ".$mysqlFunction;
             } else {
-                $values .= addslashes($key)." = '".addslashes($value)."'";
+                $values .= addslashes($this->properties[$key])." = '".addslashes($value)."'";
             }
         }
 
