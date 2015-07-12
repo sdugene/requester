@@ -32,11 +32,23 @@ abstract class Sql
                 $value = $this->criteria($value, $key);
                 $sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
-                $sql .= $this->tableName.'.'.$this->properties[$key]." = ".$value;
+                if (!array_key_exists($key, $this->properties)) {
+                    $sql .= $key." = ".$value;
+                } else {
+                    $sql .= $this->tableName.'.'.$this->properties[$key]." = ".$value;
+                }
             } elseif ($value == 'NULL') {
-                $sql .= $this->tableName.'.'.$this->properties[$key]." IS NULL";
+                if (!array_key_exists($key, $this->properties)) {
+                    $sql .= $key." IS NULL";
+                } else {
+                    $sql .= $this->tableName.'.'.$this->properties[$key]." IS NULL";
+                }
             } else {
-                $sql .= $this->tableName.'.'.$this->properties[$key]." = '".addslashes($value)."'";
+                if (!array_key_exists($key, $this->properties)) {
+                    $sql .= $key." = '".addslashes($value)."'";
+                } else {
+                    $sql .= $this->tableName.'.'.$this->properties[$key]." = '".addslashes($value)."'";
+                }
             }
         }
 
@@ -51,13 +63,11 @@ abstract class Sql
     protected function fill($result = [])
     {
         foreach ($result as $key => $value) {
-			$columns = array_flip($this->properties);
-			if (!array_key_exists($key, $columns)) {
-				$this->$key = $value;
-			} elseif (property_exists($this, $columns[$key])) {
-                $reflector = new \ReflectionClass(get_class($this));
-
-                $prop = $reflector->getProperty($columns[$key]);
+                $columns = array_flip($this->properties);
+                if (!array_key_exists($key, $columns)) {
+                        $this->$key = $value;
+                } elseif (property_exists($this, $columns[$key])) {
+                $prop = $this->reflectionClass->getProperty($columns[$key]);
                 if (!$prop->isPrivate()) {
                     $this->$columns[$key] = $value;
                 }
@@ -74,13 +84,29 @@ abstract class Sql
         $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
         if (is_array($value) && in_array($key, $operators)) {
-            return addslashes($value[0]) . " " . $this->properties[$value] . " '".addslashes($value[1])."'";
+            return $this->tableName.'.'.$this->properties[$value[0]]. " ".$key. " '".addslashes($value[1])."'";
         }
         elseif (is_array($value) && in_array($key, $arrayOperators)) {
-            return addslashes($value[0]) . " " . $this->properties[$value] . " ".addslashes($value[1]);
+            return $this->tableName.'.'.$this->properties[$value[0]]. " " .$key. " ".addslashes($value[1]);
         }
         
         return false;
+    }
+    
+    
+    private function getPrefixedColumn($tableName)
+    {
+        $name = $this->mapping->getName($tableName);
+        
+        $query = "DESCRIBE ".$name ;
+        $sql = $this->queryPDO($query);
+        $tableFields = $sql->fetchAll(\PDO::FETCH_COLUMN);
+        $sql->closeCursor();
+        
+        foreach ($tableFields as $key => $value) {
+            $tableFields[$key] = $name.'.'.$value.' as '.str_replace('@', '',$tableName).'_'.$value;
+        }
+        return implode(', ', $tableFields);
     }
 
 
@@ -89,9 +115,7 @@ abstract class Sql
         $publics = array();
         foreach ($this as $key => $value) {
             if (property_exists($this, $key)) {
-                $reflector = new \ReflectionClass(get_class($this));
-
-                $prop = $reflector->getProperty($key);
+                $prop = $this->reflectionClass->getProperty($key);
                 if (!$prop->isPrivate() && !$prop->isProtected()) {
                     $publics[$key] = $value;
                 }
@@ -126,27 +150,13 @@ abstract class Sql
         foreach ($join as $method => $array) {
             $table = key($array);
             $column = $this->getPrefixedColumn($table);
-            $sql .= strtoupper($method).' JOIN '.$table;
+            $sql .= strtoupper($method).' JOIN '.$this->mapping->getName($table);
             $sql .= $this->joinCriteria($array[$table], $table);
         }
         return [
             'sql' => $sql,
             'column' => $column
         ];
-    }
-    
-    
-    private function getPrefixedColumn($tableName)
-    {
-        $query = "DESCRIBE ".$tableName ;
-        $sql = $this->queryPDO($query);
-        $tableFields = $sql->fetchAll(\PDO::FETCH_COLUMN);
-        $sql->closeCursor();
-        
-        foreach ($tableFields as $key => $value) {
-            $tableFields[$key] = $tableName.'.'.$value.' as '.$tableName.'_'.$value;
-        }
-        return implode(', ', $tableFields);
     }
     
     
@@ -164,6 +174,17 @@ abstract class Sql
         }
         return $sql;
     }
+    
+    
+    private function multiFill($results) {
+        $array = [];
+        $className = get_called_class();
+        foreach($results as $key => $value) {
+            $array[$key] = new $className();
+            $array[$key]->fill($value);
+        }
+        return $array;
+    } 
     
     
     protected function order($order)
@@ -193,23 +214,13 @@ abstract class Sql
 
         if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {
-                $aResult = $sql->fetchAll(\PDO::FETCH_ASSOC);
+                $results = $sql->fetchAll(\PDO::FETCH_ASSOC);
                 $sql->closeCursor();
-                return $aResult[0];
+                return $results[0];
             } else {
-                /*$class = MODELS_NAMESPACE . ucfirst($this->tableName);
-                $aResult = $sql->fetchAll(\PDO::FETCH_CLASS, $class);*/
-				
-				$array = [];
-				$results = $sql->fetchAll(\PDO::FETCH_ASSOC);
-				$className = get_called_class();
-				foreach($results as $key => $value) {
-					$array[$key] = new $className();
-					$array[$key]->fill($value);
-				}
-				
+                $results = $this->multiFill($sql->fetchAll(\PDO::FETCH_ASSOC));
                 $sql->closeCursor();
-                return $array;
+                return $results;
             }
         } else {
             return [];

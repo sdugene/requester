@@ -15,25 +15,27 @@ namespace Requester;
  */
 class Request extends Sql
 {	
-	protected $properties;
+    protected $reflectionClass = null;
+    protected $properties;
     protected $tableName;
     protected $forbiden;
-	protected $mapping;
+    protected $mapping;
 
     public function __construct($input = '')
     {
-		$this->getClassAnnotations();
-		if ($input !== '') {
-			if (is_numeric($input)) {
-				$result = $this->findById($input) ;
-			} elseif (is_array($input)) {
-				$result = $this->findByCriteria($input, 1) ;
-			}
+        $this->getClassAnnotations();
+        $this->reflectionClass = new \ReflectionClass(get_called_class());
+        if ($input !== '') {
+            if (is_numeric($input)) {
+                $result = $this->findById($input) ;
+            } elseif (is_array($input)) {
+                $result = $this->findByCriteria($input, 1) ;
+            }
 
-			if ($result) {
-				$this->fill($result) ;
-			}
-		}
+            if ($result) {
+                $this->fill($result) ;
+            }
+        }
     }
 
 
@@ -57,8 +59,8 @@ class Request extends Sql
 
     public function findById($id)
     {
-		$criteria = [
-           'id' => $id
+        $criteria = [
+            'id' => $id
         ];
         
         return $this->findByCriteria($criteria, 1);
@@ -70,6 +72,7 @@ class Request extends Sql
         $sql = $this->criteria($criteria);
         $orderQuery = $this->order($order);
         $groupQuery = $this->group($group);
+        
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine);
     }
 
@@ -89,21 +92,33 @@ class Request extends Sql
     }
 	
 	
-	private function getClassAnnotations()
-	{
-		$this->mapping = Mapping::getReader(get_called_class());
-		$this->tableName = $this->mapping->getClassMapping('Table')->name;
-		$this->forbiden = $this->mapping->getClassMapping('Forbiden')->columns;
-		$this->properties = $this->mapping->getPropertiesMapping();
-	}
-
-
-    public function hydrate($input = [], $maxLine = 1, $order = false, $group = false)
+    private function getClassAnnotations()
     {
-        if (is_numeric($input)) {
-            $result = $this->findById($input) ;
-        } elseif (is_array($input)) {
-            $result = $this->findByCriteria($input, $maxLine, $order, $group) ;
+        $this->mapping = Mapping::getReader(get_called_class());
+        $this->tableName = $this->mapping->getClassMapping('Table')->name;
+        $this->forbiden = $this->mapping->getClassMapping('Forbiden')->columns;
+        $this->properties = $this->mapping->getPropertiesMapping();
+    }
+    
+    
+    public function getClassName()
+    {
+        return $this->reflectionClass->getShortName();
+    }
+    
+    
+    public function getMapping()
+    {
+        return $this->mapping;
+    }
+
+
+    public function hydrate($criteria = [], $maxLine = 1, $order = false, $group = false)
+    {
+        if (is_numeric($criteria)) {
+            $result = $this->findById($criteria) ;
+        } elseif (is_array($criteria)) {
+            $result = $this->findByCriteria($criteria, $maxLine, $order, $group) ;
         }
         
         if ($result) {
@@ -112,7 +127,8 @@ class Request extends Sql
     }
 
 
-    public function insert($inputs) {
+    public function insert($inputs)
+    {
         $columns = '';
         $values = '';
         foreach ($inputs as $key => $value) {
@@ -151,7 +167,8 @@ class Request extends Sql
     }
 
 
-    public function update($inputs, $criteria) {
+    public function update($inputs, $criteria)
+    {
         $values = '';
         foreach ($inputs as $key => $value) {
             if ($values !== '') {
