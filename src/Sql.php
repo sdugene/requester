@@ -60,21 +60,25 @@ abstract class Sql
     }
 
 
-    protected function fill($result = [])
+    protected function fill($result = [], $entity = false)
     {
+        if ($entity === false) {
+            $entity = $this->entity;
+        }
         foreach ($result as $key => $value) {
-                $columns = array_flip($this->properties);
-                if (!array_key_exists($key, $columns)) {
-                        $this->$key = $value;
-                } elseif (property_exists($this, $columns[$key])) {
+            $columns = array_flip($this->properties);
+            if (!array_key_exists($key, $columns)) {
+                $entity->$key = $value;
+            } elseif (property_exists($this->entity, $columns[$key])) {
                 $prop = $this->reflectionClass->getProperty($columns[$key]);
                 if (!$prop->isPrivate()) {
-                    $this->$columns[$key] = $value;
+                    $entity->$columns[$key] = $value;
                 }
             } else {
-                $this->$columns[$key] = $value;
+                $entity->$columns[$key] = $value;
             }
         }
+        return $entity;
     }
     
     
@@ -178,10 +182,8 @@ abstract class Sql
     
     private function multiFill($results) {
         $array = [];
-        $className = get_called_class();
         foreach($results as $key => $value) {
-            $array[$key] = new $className();
-            $array[$key]->fill($value);
+            $array[$key] = $this->fill($value, new $this->class());
         }
         return $array;
     } 
@@ -215,8 +217,9 @@ abstract class Sql
         if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {
                 $results = $sql->fetchAll(\PDO::FETCH_ASSOC);
+                $this->fill($results[0], $this->entity);
                 $sql->closeCursor();
-                return $results[0];
+                return $this->entity;
             } else {
                 $results = $this->multiFill($sql->fetchAll(\PDO::FETCH_ASSOC));
                 $sql->closeCursor();

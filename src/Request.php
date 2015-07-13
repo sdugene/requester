@@ -16,12 +16,23 @@ namespace Requester;
 class Request extends Sql
 {	
     protected $reflectionClass = null;
-    protected $properties;
-    protected $tableName;
-    protected $forbiden;
-    protected $mapping;
+    protected $properties = null;
+    protected $tableName = null;
+    protected $forbiden = null;
+    protected $mapping = null;
+    protected $entity = null;
+    protected $class = null;
 
-    public function __construct($input = '')
+    
+    public function __construct($entity)
+    {
+        $this->entity = $entity;
+        $this->class = get_class($this->entity);
+        $this->getClassAnnotations();
+        $this->reflectionClass = new \ReflectionClass($this->class);
+    }
+    
+    /*public function __construct($input = '')
     {
         $this->getClassAnnotations();
         $this->reflectionClass = new \ReflectionClass(get_called_class());
@@ -36,7 +47,7 @@ class Request extends Sql
                 $this->fill($result) ;
             }
         }
-    }
+    }*/
 
 
     public function count($input = 'id', $criteria = []) {
@@ -94,7 +105,7 @@ class Request extends Sql
 	
     private function getClassAnnotations()
     {
-        $this->mapping = Mapping::getReader(get_called_class());
+        $this->mapping = Mapping::getReader($this->class);
         $this->tableName = $this->mapping->getClassMapping('Table')->name;
         $this->forbiden = $this->mapping->getClassMapping('Forbiden')->columns;
         $this->properties = $this->mapping->getPropertiesMapping();
@@ -116,14 +127,11 @@ class Request extends Sql
     public function hydrate($criteria = [], $maxLine = 1, $order = false, $group = false)
     {
         if (is_numeric($criteria)) {
-            $result = $this->findById($criteria) ;
+            $this->findById($criteria) ;
         } elseif (is_array($criteria)) {
-            $result = $this->findByCriteria($criteria, $maxLine, $order, $group) ;
+            $this->findByCriteria($criteria, $maxLine, $order, $group) ;
         }
-        
-        if ($result) {
-            $this->fill($result) ;
-        }      
+        return $this->entity;
     }
 
 
@@ -155,10 +163,10 @@ class Request extends Sql
     public function set($name, $value)
     {
         if (!in_array($name, $this->forbiden)){
-            $this->$name = $value;
-            if (isset($this->id)) {
+            $this->entity->$name = $value;
+            if (isset($this->entity->id)) {
                 $input = [$this->properties[$name] => $value];
-                $criteria = ['id' => $this->id];
+                $criteria = ['id' => $this->entity->id];
                 $this->update($input, $criteria);
             }
         } else {
