@@ -40,7 +40,7 @@ class EntityManager
     }
     
     
-    public function entity(object $class)
+    public function entity($class)
     {
         if (is_object($class)) {
             return new Request($class);
