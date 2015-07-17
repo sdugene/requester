@@ -47,23 +47,11 @@ class Mapping
     }
     
     
-    public function getName($string)
+    public function getName($table)
     {
-        $matches = [];
-        if (preg_match('/@([a-zA-Z\d_\-]+)/', $string, $matches)) {
-
-            $table = '';
-            if ($matches[1] == 'this') {
-                $table = $this->classMapping['Table']->name;
-            } else {
-                $nameSpace = $this->reflectionClass->getNamespaceName();
-                $mapping = Mapping::getReader($nameSpace.'\\'.ucfirst($matches[1]));
-                $table = $mapping->getClassMapping('Table')->name;
-            }
-            return $table;
-        } else {
-            return $string;
-        }
+        $nameSpace = $this->reflectionClass->getNamespaceName();
+        $mapping = Mapping::getReader($nameSpace.'\\'.ucfirst($table));
+        return $mapping->getClassMapping('Table')->name;
     }
 	
 	
@@ -83,9 +71,56 @@ class Mapping
         }
         return $this->propertiesMapping;
     }
+    
+    
+    public function getPropertieJoinColumn($column, $table) {
+        $joinColumn = $this->reader
+                ->getPropertyAnnotations($this->className, $column)->get('ORM\JoinColumn');
+        
+        if (is_array($joinColumn)) {
+            foreach ($joinColumn as $line) {
+                $values = $this->mappingParse($line);
+                if ($values['name'] == $table) {
+                    return [
+                        '@'.strtolower($this->reflectionClass->getShortName()).'.@'.$column
+                            => '@'.$table.'.@'. $values['referencedColumnName']
+                    ];
+                }
+            }
+        }
+        
+        if(!is_null($joinColumn)) {
+            $values = $this->mappingParse($joinColumn);
+            return [
+                '@'.strtolower($this->reflectionClass->getShortName()).'.@'.$column
+                    => '@'.$table.'.@'. $values['referencedColumnName']
+            ];
+        }
+    }
+    
+    
+    public function getValue($tring) {
+        return $this->propertiesMapping[$tring];
+    }
 	
 	
-    public function getValue($string)
+    private function mappingParse($string)
+    {
+        $array = [];
+        $matches = [];
+        preg_match_all('/([a-zA-Z\d]+)="([a-zA-Z\d_\-]+)"|([a-zA-Z\d]+)=({"[a-zA-Z\d_\-]+"})/', $string, $matches, PREG_SET_ORDER) ;
+        foreach ($matches as $value) {
+            if ($value[1] != '') {
+                $array[$value[1]] = $value[2];
+            } elseif ($value[3] != '') {
+                $array[$value[3]] = json_decode(str_replace(array('{','}'),array('[',']'),$value[4]), true);
+            }
+        }
+        return $array;
+    }
+	
+	
+    public function valueMapping($string)
     {
         $matches = [];
         if (preg_match('/@([a-zA-Z\d_\-]+).@([a-zA-Z\d_\-]+)/', $string, $matches)) {
@@ -105,21 +140,5 @@ class Mapping
         } else {
             return $string;
         }
-    }
-	
-	
-    private function mappingParse($string)
-    {
-        $array = [];
-        $matches = [];
-        preg_match_all('/([a-zA-Z\d]+)="([a-zA-Z\d_\-]+)"|([a-zA-Z\d]+)=({"[a-zA-Z\d_\-]+"})/', $string, $matches, PREG_SET_ORDER) ;
-        foreach ($matches as $value) {
-            if ($value[1] != '') {
-                $array[$value[1]] = $value[2];
-            } elseif ($value[3] != '') {
-                $array[$value[3]] = json_decode(str_replace(array('{','}'),array('[',']'),$value[4]), true);
-            }
-        }
-        return $array;
     }
 }

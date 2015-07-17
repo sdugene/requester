@@ -15,10 +15,6 @@ namespace Requester;
  */
 abstract class Sql
 {
-    protected $tableName;
-    protected $forbiden;
-    
-    
     protected function criteria($criteria, $operator = 'AND', $sql = '')
     {
         foreach ($criteria as $key => $value) {
@@ -151,11 +147,11 @@ abstract class Sql
     protected function join($join)
     {
         $sql = '';
-        foreach ($join as $method => $array) {
-            $table = key($array);
+        foreach ($join as $method => $join) {
+            $table = key($join);
             $column = $this->getPrefixedColumn($table);
             $sql .= strtoupper($method).' JOIN '.$this->mapping->getName($table);
-            $sql .= $this->joinCriteria($array[$table], $table);
+            $sql .= $this->joinCriteria($join[$table], $table);
         }
         return [
             'sql' => $sql,
@@ -164,15 +160,21 @@ abstract class Sql
     }
     
     
-    private function joinCriteria($criteria)
+    private function joinCriteria($criteria, $table)
     {
         $sql = '' ;
-        foreach ($criteria as $boolean => $array) {
-            foreach ($array as $key => $value) {
+        foreach ($criteria as $boolean => $column) {
+            if(!is_array($column)) {
+                $joinMapping = $this->mapping->getPropertieJoinColumn($column, $table);
+            } else {
+                $joinMapping = ['@'.$table.'.@'.key($column) => current($column)];
+                var_dump($joinMapping);
+            }
+            foreach ($joinMapping as $key => $value) {
                 if ($this->findOperator($key, $value)) {
                     $sql .= ' '.$boolean.' '.$this->findOperator($key, $value);
                 } else {
-                    $sql .= ' '.$boolean.' '.$this->mapping->getValue($key)." = ".$this->mapping->getValue($value);
+                    $sql .= ' '.$boolean.' '.$this->mapping->valueMapping($key)." = ".$this->mapping->valueMapping($value);
                 }
             }
         }

@@ -36,7 +36,8 @@ class EntityManager
     public function mappingGetValue($entity, $string)
     {
         $request = new Request($entity);
-        return $request->getMapping()->getValue($string);
+        $table = $request->getClassName();
+        return $request->getMapping()->getName($table).'.'.$request->getMapping()->getValue($string);
     }
     
     
