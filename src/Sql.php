@@ -246,8 +246,12 @@ abstract class Sql
             if (preg_match("/INSERT/i", $query)) {
                 $sql->closeCursor();
                 return $bdd->lastInsertId();
+            } elseif (preg_match("/DELETE|UPDATE/i", $query)) {
+                $count = $sql->rowCount();
+                $sql->closeCursor();
+                return $count;
             } else {
-                return $sql;	
+                return $sql;
             }
         }
         fclose($fd);

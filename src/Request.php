@@ -31,28 +31,11 @@ class Request extends Sql
         $this->getClassAnnotations();
         $this->reflectionClass = new \ReflectionClass($this->class);
     }
-    
-    /*public function __construct($input = '')
-    {
-        $this->getClassAnnotations();
-        $this->reflectionClass = new \ReflectionClass(get_called_class());
-        if ($input !== '') {
-            if (is_numeric($input)) {
-                $result = $this->findById($input) ;
-            } elseif (is_array($input)) {
-                $result = $this->findByCriteria($input, 1) ;
-            }
-
-            if ($result) {
-                $this->fill($result) ;
-            }
-        }
-    }*/
 
 
     public function count($input = 'id', $criteria = []) {
         $sqlPart = $this->criteria($criteria);
-        $query = "SELECT count(".$input.") as count FROM ".$this->tableName.$sqlPart ;
+        $query = "SELECT count(".$input.") as count FROM ".$this->tableName.$sqlPart;
         $sql = $this->queryPDO($query);
 
         $result = $sql->fetch(\PDO::FETCH_ASSOC);
@@ -62,13 +45,41 @@ class Request extends Sql
 
     public function delete($criteria) {
         $where = $this->criteria($criteria);
-        $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1"  ;
-        $sql = $this->queryPDO($query);
-        $sql->closeCursor();
+        $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1";
+        return $this->queryPDO($query);
+    }
+    
+    
+    public function find()
+    {
+        /**
+         *  $args[0] : $criteria
+         *  $args[1] : $join
+         *  $args[2] : $maxline
+         *  $args[3] : $order
+         *  $args[4] : $group
+         */
+        $args = $this->getArgs(func_get_args());
+        
+        if (is_numeric($args[0])) {
+            return $this->findById($args[0]);
+        }
+        
+        if (is_array($args[1]) && !empty($args[1])) {
+            return $this->findWithJoin($args[0], $args[1], $args[2], $args[3], $args[4]);
+        }
+        
+        if (is_array($args[0])) {
+            $args[2] = $args[3];
+            $args[3] = $args[4];
+            return $this->findByCriteria($args[0], $args[1], $args[2], $args[3]);
+        }
+        
+        
     }
 
 
-    public function findById($id)
+    private function findById($id)
     {
         $criteria = [
             'id' => $id
@@ -78,7 +89,7 @@ class Request extends Sql
     }
 
 
-    public function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false)
+    private function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false)
     {
         $sql = $this->criteria($criteria);
         $orderQuery = $this->order($order);
@@ -88,7 +99,7 @@ class Request extends Sql
     }
 
 
-    public function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
+    private function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
     {
         if (empty($join)) {
             return findByCriteria($criteria, $maxLine, $order, $group);
@@ -100,6 +111,19 @@ class Request extends Sql
         $groupQuery = $this->group($group);
         
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $this->tableName.'.*, '.$jointer['column']);
+    }
+    
+    
+    private function getArgs($args, $max = 5)
+    {
+        for($j = 0 ; $j < $max ; $j++) {
+            if (!array_key_exists($j, $args) && $j < 2) {
+                $args[$j] = [];
+            } elseif (!array_key_exists($j, $args)) {
+                $args[$j] = false;
+            }
+        }
+        return $args;
     }
 	
 	
@@ -121,17 +145,6 @@ class Request extends Sql
     public function getMapping()
     {
         return $this->mapping;
-    }
-
-
-    public function hydrate($criteria = [], $maxLine = 1, $order = false, $group = false)
-    {
-        if (is_numeric($criteria)) {
-            $this->findById($criteria) ;
-        } elseif (is_array($criteria)) {
-            $this->findByCriteria($criteria, $maxLine, $order, $group) ;
-        }
-        return $this->entity;
     }
 
 
@@ -167,7 +180,7 @@ class Request extends Sql
             if (isset($this->entity->id)) {
                 $input = [$this->properties[$name] => $value];
                 $criteria = ['id' => $this->entity->id];
-                $this->update($input, $criteria);
+                return $this->update($input, $criteria);
             }
         } else {
             trigger_error($this->tableName." - Set method forbiden on '".$name."' attribute", E_USER_ERROR);
@@ -193,7 +206,6 @@ class Request extends Sql
 
         $where = $this->criteria($criteria);
         $query = "UPDATE ".$this->tableName." SET ".$values." ".$where ;
-        $sql = $this->queryPDO($query);
-        $sql->closeCursor();
+        return $this->queryPDO($query);
     }
 }
