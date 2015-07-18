@@ -104,7 +104,7 @@ abstract class Sql
         $sql->closeCursor();
         
         foreach ($tableFields as $key => $value) {
-            $tableFields[$key] = $name.'.'.$value.' as '.str_replace('@', '',$tableName).'_'.$value;
+            $tableFields[$key] = $name.'.'.$value.' as '.$tableName.'_'.$value;
         }
         return implode(', ', $tableFields);
     }
