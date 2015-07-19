@@ -70,8 +70,6 @@ class Request extends Sql
         }
         
         if (is_array($args[0])) {
-            $args[2] = $args[3];
-            $args[3] = $args[4];
             return $this->findByCriteria($args[0], $args[1], $args[2], $args[3]);
         }
         
