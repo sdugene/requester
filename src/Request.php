@@ -33,9 +33,9 @@ class Request extends Sql
     }
 
 
-    public function count($input = 'id', $criteria = []) {
+    public function count($column = 'id', $criteria = []) {
         $sqlPart = $this->criteria($criteria);
-        $query = "SELECT count(".$input.") as count FROM ".$this->tableName.$sqlPart;
+        $query = "SELECT count(".$this->properties[$column].") as count FROM ".$this->tableName." ".$sqlPart;
         $sql = $this->queryPDO($query);
 
         $result = $sql->fetch(\PDO::FETCH_ASSOC);
@@ -143,11 +143,11 @@ class Request extends Sql
     }
 
 
-    public function insert($inputs)
+    public function insert($input)
     {
         $columns = '';
         $values = '';
-        foreach ($inputs as $key => $value) {
+        foreach ($input as $key => $value) {
             if ($columns !== '') {
                 $columns .= ', ';
             }
@@ -168,12 +168,12 @@ class Request extends Sql
     }
     
     
-    public function set($name, $value)
+    public function set($column, $value)
     {
-        if (!in_array($name, $this->forbiden)){
-            $this->entity->$name = $value;
+        if (!in_array($column, $this->forbiden)){
+            $this->entity->$column = $value;
             if (isset($this->entity->id)) {
-                $input = [$this->properties[$name] => $value];
+                $input = [$this->properties[$column] => $value];
                 $criteria = ['id' => $this->entity->id];
                 return $this->update($input, $criteria);
             }
@@ -183,10 +183,10 @@ class Request extends Sql
     }
 
 
-    public function update($inputs, $criteria)
+    public function update($input, $criteria)
     {
         $values = '';
-        foreach ($inputs as $key => $value) {
+        foreach ($input as $key => $value) {
             if ($values !== '') {
                 $values .= ', ';
             }
