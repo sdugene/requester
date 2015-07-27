@@ -35,7 +35,7 @@ class Pdo
             $bdd->setAttribute(\PDO::ATTR_EMULATE_PREPARES,false);
             return $bdd ;
         } catch(Exception $e) {
-            throw new Exception('PDO ERROR' : $e->getMessage());
+            trigger_error('PDO ERROR : '.$e->getMessage(), E_USER_ERROR);
         }
     }
     
