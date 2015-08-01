@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Requester;
 
 /**
@@ -16,12 +10,17 @@ namespace Requester;
 class Pdo
 {
     private static $_bdd = null;
-    
+
+    /**
+     * @return void
+     */
     private function __construct(){
         // I must be empty
     }
-    
-    
+
+    /**
+     * @return \PDO
+     */
     private static function connexion()
     {
         $login = MYSQL_USER;
@@ -38,8 +37,10 @@ class Pdo
             trigger_error('PDO ERROR : '.$e->getMessage(), E_USER_ERROR);
         }
     }
-    
-    
+
+    /**
+     * @return null|\PDO
+     */
     public static function getBdd()
     {
         if(is_null(self::$_bdd)) {

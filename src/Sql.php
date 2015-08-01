@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Requester;
 
 /**
@@ -15,6 +9,12 @@ namespace Requester;
  */
 abstract class Sql
 {
+    /**
+     * @param $criteria
+     * @param string $operator
+     * @param string $sql
+     * @return bool|string
+     */
     protected function criteria($criteria, $operator = 'AND', $sql = '')
     {
         foreach ($criteria as $key => $value) {
@@ -48,14 +48,14 @@ abstract class Sql
             }
         }
 
-        if (!empty($sql)) {
-            return "WHERE ".$sql;
-        } else {
-            return false;
-        }
+        return !empty($sql) ? "WHERE " . $sql : false;
     }
 
-
+    /**
+     * @param array $result
+     * @param bool|false $entity
+     * @return bool
+     */
     protected function fill($result = [], $entity = false)
     {
         if ($entity === false) {
@@ -76,8 +76,12 @@ abstract class Sql
         }
         return $entity;
     }
-    
-    
+
+    /**
+     * @param $key
+     * @param $value
+     * @return bool|string
+     */
     private function findOperator($key, $value)
     {
         $operators = ['=', '>', '>=', '<', '<=', '!=', 'LIKE'];
@@ -92,8 +96,11 @@ abstract class Sql
         
         return false;
     }
-    
-    
+
+    /**
+     * @param $tableName
+     * @return string
+     */
     private function getPrefixedColumn($tableName)
     {
         $name = $this->mapping->getName($tableName);
@@ -109,7 +116,9 @@ abstract class Sql
         return implode(', ', $tableFields);
     }
 
-
+    /**
+     * @return array
+     */
     protected function getPublic()
     {
         $publics = array();
@@ -125,8 +134,11 @@ abstract class Sql
         }
         return $publics;
     }
-    
-    
+
+    /**
+     * @param $group
+     * @return string
+     */
     protected function group($group)
     {
         $groupQuery = '';
@@ -142,8 +154,11 @@ abstract class Sql
         }
         return $groupQuery;
     }
-    
-    
+
+    /**
+     * @param $join
+     * @return array
+     */
     protected function join($join)
     {
         $sql = '';
@@ -158,8 +173,12 @@ abstract class Sql
             'column' => $column
         ];
     }
-    
-    
+
+    /**
+     * @param $criteria
+     * @param $table
+     * @return string
+     */
     private function joinCriteria($criteria, $table)
     {
         $sql = '' ;
@@ -180,17 +199,23 @@ abstract class Sql
         }
         return $sql;
     }
-    
-    
+
+    /**
+     * @param $results
+     * @return array
+     */
     private function multiFill($results) {
         $array = [];
         foreach($results as $key => $value) {
             $array[$key] = $this->fill($value, new $this->class());
         }
         return $array;
-    } 
-    
-    
+    }
+
+    /**
+     * @param $order
+     * @return string
+     */
     protected function order($order)
     {
         $orderQuery = '';
@@ -207,7 +232,12 @@ abstract class Sql
         return $orderQuery;
     }
 
-
+    /**
+     * @param $query
+     * @param bool|false $maxLine
+     * @param string $column
+     * @return array
+     */
     protected function query($query, $maxLine = false, $column = '*')
     {
         $limit = '' ;
@@ -232,7 +262,10 @@ abstract class Sql
         }
     }
 
-
+    /**
+     * @param $query
+     * @return int|\PDOStatement|string
+     */
     protected function queryPDO($query) {
         $bdd = Pdo::getBdd();
         $sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);

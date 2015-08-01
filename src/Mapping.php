@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Requester;
 
 /**
@@ -20,21 +14,31 @@ class Mapping
     private $reflectionClass = null;
     private $classMapping = [];
     private $className = null;
-    
+
+    /**
+     * @param $className
+     * @return void
+     */
     private function __construct($className)
     {
         $this->reader = \Minime\Annotations\Reader::createFromDefaults();
         $this->reflectionClass = new \ReflectionClass($className);
         $this->className = $className;
     }
-    
-    
+
+    /**
+     * @param $className
+     * @return Mapping
+     */
     public static function getReader($className)
     {
         return new Mapping($className);
     }
-	
-	
+
+    /**
+     * @param $key
+     * @return mixed
+     */
     public function getClassMapping($key)
     {
         if (!array_key_exists($key, $this->classMapping)) {
@@ -45,16 +49,21 @@ class Mapping
         }
         return $this->classMapping[$key];
     }
-    
-    
+
+    /**
+     * @param $table
+     * @return mixed
+     */
     public function getName($table)
     {
         $nameSpace = $this->reflectionClass->getNamespaceName();
         $mapping = Mapping::getReader($nameSpace.'\\'.ucfirst($table));
         return $mapping->getClassMapping('Table')->name;
     }
-	
-	
+
+    /**
+     * @return array|null
+     */
     public function getPropertiesMapping()
     {
         if (is_null($this->propertiesMapping)) {
@@ -71,8 +80,12 @@ class Mapping
         }
         return $this->propertiesMapping;
     }
-    
-    
+
+    /**
+     * @param $column
+     * @param $table
+     * @return array
+     */
     public function getPropertieJoinColumn($column, $table) {
         $joinColumn = $this->reader
                 ->getPropertyAnnotations($this->className, $column)->get('ORM\JoinColumn');
@@ -97,13 +110,19 @@ class Mapping
             ];
         }
     }
-    
-    
+
+    /**
+     * @param $tring
+     * @return mixed
+     */
     public function getValue($tring) {
         return $this->propertiesMapping[$tring];
     }
-	
-	
+
+    /**
+     * @param $string
+     * @return array
+     */
     private function mappingParse($string)
     {
         $array = [];
@@ -118,8 +137,11 @@ class Mapping
         }
         return $array;
     }
-	
-	
+
+    /**
+     * @param $string
+     * @return string
+     */
     public function valueMapping($string)
     {
         $matches = [];

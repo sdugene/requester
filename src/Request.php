@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Requester;
 
 /**
@@ -18,12 +12,14 @@ class Request extends Sql
     protected $reflectionClass = null;
     protected $properties = null;
     protected $tableName = null;
-    protected $forbiden = null;
+    protected $forbidden = null;
     protected $mapping = null;
     protected $entity = null;
     protected $class = null;
 
-    
+    /**
+     * @param $entity
+     */
     public function __construct($entity)
     {
         $this->entity = $entity;
@@ -32,7 +28,11 @@ class Request extends Sql
         $this->reflectionClass = new \ReflectionClass($this->class);
     }
 
-
+    /**
+     * @param string $column
+     * @param array $criteria
+     * @return mixed
+     */
     public function count($column = 'id', $criteria = []) {
         $sqlPart = $this->criteria($criteria);
         $query = "SELECT count(".$this->properties[$column].") as count FROM ".$this->tableName." ".$sqlPart;
@@ -42,14 +42,24 @@ class Request extends Sql
         return $result['count'];
     }
 
-
+    /**
+     * @param array $criteria
+     * @return int|\PDOStatement|string
+     */
     public function delete($criteria) {
         $where = $this->criteria($criteria);
         $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1";
         return $this->queryPDO($query);
     }
-    
-    
+
+    /**
+     * @param int|array $id|$criteria
+     * @param array|int $join|$maxline
+     * @param int|array $maxline|$order
+     * @param array $order|$group
+     * @param array $group
+     * @return array
+     */
     public function find()
     {
         /**
@@ -72,11 +82,12 @@ class Request extends Sql
         if (is_array($args[0])) {
             return $this->findByCriteria($args[0], $args[1], $args[2], $args[3]);
         }
-        
-        
     }
 
-
+    /**
+     * @param $id
+     * @return array
+     */
     private function findById($id)
     {
         $criteria = [
@@ -86,7 +97,13 @@ class Request extends Sql
         return $this->findByCriteria($criteria, 1);
     }
 
-
+    /**
+     * @param array $criteria
+     * @param bool|false $maxLine
+     * @param bool|false $order
+     * @param bool|false $group
+     * @return array
+     */
     private function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false)
     {
         $sql = $this->criteria($criteria);
@@ -96,7 +113,14 @@ class Request extends Sql
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine);
     }
 
-
+    /**
+     * @param array $criteria
+     * @param array $join
+     * @param bool|false $maxLine
+     * @param bool|false $order
+     * @param bool|false $group
+     * @return array
+     */
     private function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
     {
         $jointer = $this->join($join);
@@ -107,8 +131,12 @@ class Request extends Sql
         
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $this->tableName.'.*, '.$jointer['column']);
     }
-    
-    
+
+    /**
+     * @param $args
+     * @param int $max
+     * @return mixed
+     */
     private function getArgs($args, $max = 5)
     {
         for($j = 0 ; $j < $max ; $j++) {
@@ -120,29 +148,38 @@ class Request extends Sql
         }
         return $args;
     }
-	
-	
+
+    /**
+     * @return void
+     */
     private function getClassAnnotations()
     {
         $this->mapping = Mapping::getReader($this->class);
         $this->tableName = $this->mapping->getClassMapping('Table')->name;
-        $this->forbiden = $this->mapping->getClassMapping('Forbiden')->columns;
+        $this->forbidden = $this->mapping->getClassMapping('Forbidden')->columns;
         $this->properties = $this->mapping->getPropertiesMapping();
     }
-    
-    
+
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return $this->reflectionClass->getShortName();
     }
-    
-    
+
+    /**
+     * @return array
+     */
     public function getMapping()
     {
         return $this->mapping;
     }
 
-
+    /**
+     * @param $input
+     * @return int
+     */
     public function insert($input)
     {
         $columns = '';
@@ -166,11 +203,15 @@ class Request extends Sql
         $query = "INSERT INTO ".$this->tableName." (".$columns.") VALUES (".$values.")" ;
         return $this->queryPDO($query);
     }
-    
-    
+
+    /**
+     * @param $column
+     * @param $value
+     * @return int
+     */
     public function set($column, $value)
     {
-        if (!in_array($column, $this->forbiden)){
+        if (!in_array($column, $this->forbidden)){
             $this->entity->$column = $value;
             if (isset($this->entity->id)) {
                 $input = [$this->properties[$column] => $value];
@@ -178,11 +219,15 @@ class Request extends Sql
                 return $this->update($input, $criteria);
             }
         } else {
-            trigger_error($this->tableName." - Set method forbiden on '".$name."' attribute", E_USER_ERROR);
+            trigger_error($this->tableName." - Set method forbidden on '".$column."' attribute", E_USER_ERROR);
         }
     }
 
-
+    /**
+     * @param $input
+     * @param $criteria
+     * @return int
+     */
     public function update($input, $criteria)
     {
         $values = '';

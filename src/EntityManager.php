@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace Requester;
 
 /**
@@ -16,13 +10,17 @@ namespace Requester;
 class EntityManager
 {
     private static $_instance = null;
-    
-    
+
+    /**
+     * @return void
+     */
     private function __construct() {
         // I must be empty
     }
-    
-    
+
+    /**
+     * @return EntityManager
+     */
     public static function getManager()
     {
         if(is_null(self::$_instance)) {
@@ -30,23 +28,26 @@ class EntityManager
         }
         return self::$_instance;
     }
-    
-    
+
     /// METHODS
+    /**
+     * @param $entity
+     * @param $string
+     * @return string
+     */
     public function mappingGetValue($entity, $string)
     {
         $request = new Request($entity);
         $table = $request->getClassName();
-        return $request->getMapping()->getName($table).'.'.$request->getMapping()->getValue($string);
+        return $request->getMapping()->getName($table) . '.' . $request->getMapping()->getValue($string);
     }
-    
-    
+
+    /**
+     * @param $class
+     * @return Request|string
+     */
     public function entity($class)
     {
-        if (is_object($class)) {
-            return new Request($class);
-        } else {
-            return '{"ERROR":"$class must be an object"}';
-        }
+        return is_object($class) ? new Request($class) : '{"ERROR":"$class must be an object"}';
     }
 }
