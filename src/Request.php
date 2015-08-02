@@ -54,8 +54,8 @@ class Request extends Sql
 
     /**
      * @param int|array $id|$criteria
-     * @param array|int $join|$maxline
-     * @param int|array $maxline|$order
+     * @param array|int $join|$limit
+     * @param int|array $limit|$order
      * @param array $order|$group
      * @param array $group
      * @return array
@@ -65,7 +65,7 @@ class Request extends Sql
         /**
          *  $args[0] : $criteria
          *  $args[1] : $join
-         *  $args[2] : $maxline
+         *  $args[2] : $limit
          *  $args[3] : $order
          *  $args[4] : $group
          */
