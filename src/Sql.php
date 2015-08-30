@@ -192,7 +192,6 @@ abstract class Sql
                 $joinMapping = $this->mapping->getPropertieJoinColumn($column, $table);
             } else {
                 $joinMapping = ['@'.$table.'.@'.key($column) => current($column)];
-                var_dump($joinMapping);
             }
             foreach ($joinMapping as $key => $value) {
                 if ($this->findOperator($key, $value)) {
