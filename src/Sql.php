@@ -148,7 +148,12 @@ abstract class Sql
                 if ($groupList !== '') {
                     $groupList .= ', ';
                 }
-                $groupList .= $this->properties[$key].' '.strtoupper($value);
+                if (!array_key_exists($key, $this->properties)) {
+                    $groupList .= $key.' '.strtoupper($value);
+                } else {
+                    $groupList .= $this->properties[$key].' '.strtoupper($value);
+                }
+
             }
             $groupQuery = ' GROUP BY '.trim($groupList);
         }
@@ -225,7 +230,11 @@ abstract class Sql
                 if ($orderList !== '') {
                     $orderList .= ', ';
                 }
-                $orderList .= $this->properties[$key].' '.strtoupper($value);
+                if (!array_key_exists($key, $this->properties)) {
+                    $orderList .= $key.' '.strtoupper($value);
+                } else {
+                    $orderList .= $this->properties[$key].' '.strtoupper($value);
+                }
             }
             $orderQuery = ' ORDER BY '.trim($orderList);
         }
