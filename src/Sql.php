@@ -15,18 +15,25 @@ abstract class Sql
      * @param string $sql
      * @return bool|string
      */
-    protected function criteria($criteria, $operator = 'AND', $sql = '')
+    protected function criteria($criteria, $operator = 'AND', $sql = false, $where = true, $name = false)
     {
         foreach ($criteria as $key => $value) {
-            if ($sql !== '') {
+            if ($sql !== false) {
                 $sql .= ' '.$operator.' ';
             }
             
-            if ($this->findOperator($key, $value)){
+            if ($name !== false) {
+                $key = $name;
+            }
+            
+            if ($this->findOperator($key, $value)) {
                 $sql .= $this->findOperator($key, $value);
-            } elseif (is_array($value)){
-                $value = $this->criteria($value, $key);
-                $sql .= '(' . $value . ')';
+            } elseif (is_array($value) && is_numeric(key($value))) {
+            	$value = $this->criteria($value, $operator, false, false, $key);
+            	$sql .= $value;
+            } elseif (is_array($value)) {
+            	$value = $this->criteria($value, $key, false, false);
+            	$sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
                 if (!array_key_exists($key, $this->properties)) {
                     $sql .= $key." = ".$value;
@@ -47,8 +54,8 @@ abstract class Sql
                 }
             }
         }
-
-        return !empty($sql) ? "WHERE " . $sql : false;
+		
+		return $where && $sql ? "WHERE " . $sql : $sql;
     }
 
     /**
