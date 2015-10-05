@@ -214,7 +214,7 @@ class Request extends Sql
         if (!in_array($column, $this->forbidden)){
             $this->entity->$column = $value;
             if (isset($this->entity->id)) {
-                $input = [$this->properties[$column] => $value];
+                $input = [$column => $value];
                 $criteria = ['id' => $this->entity->id];
                 return $this->update($input, $criteria);
             }
