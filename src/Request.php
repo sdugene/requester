@@ -175,6 +175,15 @@ class Request extends Sql
     {
         return $this->mapping;
     }
+    
+    /**
+     * @param string $name
+     * @return object ReflectionProperty
+     */
+    public function getProperty($name)
+    {
+    	return $this->reflectionClass->getProperty($name);
+    }
 
     /**
      * @param $input
