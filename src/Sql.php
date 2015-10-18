@@ -98,7 +98,7 @@ abstract class Sql
             return $this->tableName.'.'.$this->properties[$value[0]]. " ".$key. " '".addslashes($value[1])."'";
         }
         elseif (is_array($value) && in_array($key, $arrayOperators)) {
-            return $this->tableName.'.'.$this->properties[$value[0]]. " " .$key. " ".addslashes($value[1]);
+        	return $this->tableName.'.'.$this->properties[$value[0]]. " " .$key. " ".$value[1];
         }
         
         return false;
