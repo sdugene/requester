@@ -75,6 +75,10 @@ class Request extends Sql
             return $this->findById($args[0]);
         }
         
+        if ($args[0] == '*') {
+        	return $this->findByCriteria();
+        }
+        
         if (is_array($args[1]) && !empty($args[1])) {
             return $this->findWithJoin($args[0], $args[1], $args[2], $args[3], $args[4]);
         }
