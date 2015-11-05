@@ -156,7 +156,7 @@ abstract class Sql
                     $groupList .= ', ';
                 }
                 if (!array_key_exists($key, $this->properties)) {
-                    $groupList .= $this->tableName.'.'.$key.' '.strtoupper($value);
+                    $groupList .= $key.' '.strtoupper($value);
                 } else {
                     $groupList .= $this->tableName.'.'.$this->properties[$key].' '.strtoupper($value);
                 }
@@ -237,7 +237,7 @@ abstract class Sql
                     $orderList .= ', ';
                 }
                 if (!array_key_exists($key, $this->properties)) {
-                    $orderList .= $this->tableName.'.'.$key.' '.strtoupper($value);
+                    $orderList .= $key.' '.strtoupper($value);
                 } else {
                     $orderList .= $this->tableName.'.'.$this->properties[$key].' '.strtoupper($value);
                 }
