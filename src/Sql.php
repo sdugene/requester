@@ -177,6 +177,9 @@ abstract class Sql
         foreach ($join as $method => $join) {
             $table = key($join);
             $column = $this->getPrefixedColumn($table);
+            if ($sql != '') {
+            	$sql .= ' ';
+            }
             $sql .= strtoupper($method).' JOIN '.$this->mapping->getName($table);
             $sql .= $this->joinCriteria($join[$table], $table);
         }
