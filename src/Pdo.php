@@ -21,15 +21,10 @@ class Pdo
     /**
      * @return \PDO
      */
-    private static function connexion()
+    private static function connexion($user, $password, $host, $database)
     {
-        $login = MYSQL_USER;
-        $pwd = MYSQL_PWD;
-        $host = MYSQL_HOST;
-        $base = MYSQL_DB;
-
         try {
-            $bdd = new \PDO('mysql:host='.$host.';dbname='.$base, $login, $pwd);
+            $bdd = new \PDO('mysql:host='.$host.';dbname='.$database, $user, $password);
             $bdd->exec('SET CHARACTER SET UTF8');
             $bdd->setAttribute(\PDO::ATTR_EMULATE_PREPARES,false);
             return $bdd ;
@@ -41,10 +36,10 @@ class Pdo
     /**
      * @return null|\PDO
      */
-    public static function getBdd()
+    public static function getBdd($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB)
     {
         if(is_null(self::$_bdd)) {
-            self::$_bdd = self::connexion();
+            self::$_bdd = self::connexion($user, $password, $host, $database);
         }
         return self::$_bdd;
     }

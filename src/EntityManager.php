@@ -50,4 +50,15 @@ class EntityManager
     {
         return is_object($class) ? new Request($class) : '{"ERROR":"$class must be an object"}';
     }
+
+    /**
+     * @param $user
+     * @param $password
+     * @param $host
+     * @param $database
+     * @return void
+     */
+	public function setDatabase($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB) {
+		Pdo::getBdd($user, $password, $host, $database);
+	}
 }
