@@ -10,6 +10,11 @@ namespace Requester;
 class EntityManager
 {
     private static $_instance = null;
+    
+    private $dbUser = null;
+    private $dbPassword = null;
+    private $dbHost = null;
+    private $dbName = null;
 
     /**
      * @return void
@@ -48,7 +53,12 @@ class EntityManager
      */
     public function entity($class)
     {
-        return is_object($class) ? new Request($class) : '{"ERROR":"$class must be an object"}';
+        $request = is_object($class) ? new Request($class) : '{"ERROR":"$class must be an object"}';
+    	if ($this->dbUser != null) {
+    		$request->setDatabase($this->dbUser, $this->dbPassword, $this->dbHost, $this->dbName);
+    	}
+    	
+    	return $request;
     }
 
     /**
@@ -56,9 +66,13 @@ class EntityManager
      * @param $password
      * @param $host
      * @param $database
-     * @return void
+     * @return object EntityManager
      */
 	public function setDatabase($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB) {
-		Pdo::getBdd($user, $password, $host, $database);
+		$this->dbUser = $user;
+		$this->dbPassword = $password;
+		$this->dbHost = $host;
+		$this->dbName = $database;
+		return $this;
 	}
 }

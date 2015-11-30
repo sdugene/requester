@@ -16,6 +16,12 @@ class Request extends Sql
     protected $mapping = null;
     protected $entity = null;
     protected $class = null;
+    
+    /* DATABASE */
+    protected $dbUser = null;
+    protected $dbPassword = null;
+    protected $dhHost = null;
+    protected $dbName = null;
 
     /**
      * @param $entity
@@ -234,6 +240,21 @@ class Request extends Sql
         } else {
             trigger_error($this->tableName." - Set method forbidden on '".$column."' attribute", E_USER_ERROR);
         }
+    }
+
+    /**
+     * @param $user
+     * @param $password
+     * @param $host
+     * @param $database
+     * @return object Request
+     */
+    public function setDatabase($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB) {
+    	$this->dbUser = $user;
+		$this->dbPassword = $password;
+		$this->dbHost = $host;
+		$this->dbName = $database;
+		return $this;
     }
 
     /**

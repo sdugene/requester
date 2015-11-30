@@ -21,7 +21,7 @@ class Pdo
     /**
      * @return \PDO
      */
-    private static function connexion($user, $password, $host, $database)
+    private static function connexion($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB)
     {
         try {
             $bdd = new \PDO('mysql:host='.$host.';dbname='.$database, $user, $password);
@@ -36,11 +36,23 @@ class Pdo
     /**
      * @return null|\PDO
      */
-    public static function getBdd($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB)
+    public static function getBdd()
     {
         if(is_null(self::$_bdd)) {
-            self::$_bdd = self::connexion($user, $password, $host, $database);
+            self::$_bdd = self::connexion();
         }
         return self::$_bdd;
+    }
+    
+    /**
+     * @param $user
+     * @param $password
+     * @param $host
+     * @param $database
+     * @return object \PDO
+     */
+	public static function getBddWithParams($user = MYSQL_USER, $password = MYSQL_PWD, $host = MYSQL_HOST, $database = MYSQL_DB)
+    {
+    	return self::connexion($user, $password, $host, $database);
     }
 }

@@ -285,7 +285,12 @@ abstract class Sql
      * @return int|\PDOStatement|string
      */
     protected function queryPDO($query) {
-        $bdd = Pdo::getBdd();
+    	if ($this->dbUser == null) {
+        	$bdd = Pdo::getBdd();
+    	} else {
+    		$bdd = Pdo::getBddWithParams($this->dbUser, $this->dbPassword, $this->dbHost, $this->dbName);
+    	}
+    	
         $sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
 
         $fd = fopen( ROOT . "debug/sql.log", "a+");
