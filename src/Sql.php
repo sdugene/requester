@@ -68,18 +68,25 @@ abstract class Sql
         if ($entity === false) {
             $entity = $this->entity;
         }
-        foreach ($result as $key => $value) {
-            $columns = array_flip($this->properties);
-            if (!array_key_exists($key, $columns)) {
-                $entity->$key = $value;
-            } elseif (property_exists($this->entity, $columns[$key])) {
-                $prop = $this->reflectionClass->getProperty($columns[$key]);
-                if (!$prop->isPrivate()) {
-                    $entity->$columns[$key] = $value;
-                }
-            } else {
-                $entity->$columns[$key] = $value;
-            }
+        
+        $properties = $this->reflectionClass->getProperties();
+        foreach ($properties as $property)
+        {
+        	$key = $property->name;
+        	if (array_key_exists($key, $this->properties)) {
+        		$name = $this->properties[$key];
+        	} else {
+        		$name = $key;
+        	}
+        	
+        	
+        	if ($property->isPrivate()){
+        		// DO NOTHING
+        	} elseif(array_key_exists($name, $result)) {
+        		$entity->$key = $result[$name];
+        	} else {
+        		$entity->$key = null;
+        	}
         }
         return $entity;
     }
