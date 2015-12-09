@@ -9,6 +9,7 @@ namespace Requester;
  */
 class Request extends Sql
 {	
+    protected $joinedProperties = null;
     protected $reflectionClass = null;
     protected $properties = null;
     protected $tableName = null;
@@ -168,6 +169,7 @@ class Request extends Sql
         $this->tableName = $this->mapping->getClassMapping('Table')->name;
         $this->forbidden = $this->mapping->getClassMapping('Forbidden')->columns;
         $this->properties = $this->mapping->getPropertiesMapping();
+        $this->joinedProperties = $this->mapping->getPropertiesMapping('Joined');
     }
 
     /**

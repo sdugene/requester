@@ -10,7 +10,8 @@ namespace Requester;
 class Mapping
 {
     private $reader = null;
-    private $propertiesMapping = null;
+    private $propertiesMappingColumn = null;
+    private $propertiesMappingJoined = null;
     private $reflectionClass = null;
     private $classMapping = [];
     private $className = null;
@@ -64,21 +65,22 @@ class Mapping
     /**
      * @return array|null
      */
-    public function getPropertiesMapping()
+    public function getPropertiesMapping($type = 'Column')
     {
-        if (is_null($this->propertiesMapping)) {
+    	$attributeName = "propertiesMapping".$type;
+        if (is_null($this->$attributeName)) {
             $array = [];
             $properties = $this->reflectionClass->getProperties();
             foreach($properties as $property) {
-                $column = $this->reader->getPropertyAnnotations($this->className, $property->name)->get('ORM\Column');
+                $column = $this->reader->getPropertyAnnotations($this->className, $property->name)->get('ORM\\'.$type);
                 if(!is_null($column)) {
                     $values = $this->mappingParse($column);
                     $array[$property->name] = $values['name'];
                 }
             }
-            $this->propertiesMapping = $array;
+            $this->$attributeName = $array;
         }
-        return $this->propertiesMapping;
+        return $this->$attributeName;
     }
 
     /**
@@ -116,7 +118,7 @@ class Mapping
      * @return mixed
      */
     public function getValue($tring) {
-        return $this->propertiesMapping[$tring];
+        return $this->propertiesMappingColumn[$tring];
     }
 
     /**

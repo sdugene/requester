@@ -75,6 +75,8 @@ abstract class Sql
         	$key = $property->name;
         	if (array_key_exists($key, $this->properties)) {
         		$name = $this->properties[$key];
+        	} elseif (array_key_exists($key, $this->joinedProperties)) {
+        		$name = $this->joinedProperties[$key];
         	} else {
         		$name = $key;
         	}
