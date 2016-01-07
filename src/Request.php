@@ -187,6 +187,14 @@ class Request extends Sql
     {
         return $this->mapping;
     }
+
+    /**
+     * @return array
+     */
+    public function getMappingProperties()
+    {
+        return $this->properties;
+    }
     
     /**
      * @param string $name
