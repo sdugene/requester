@@ -55,6 +55,17 @@ class Mapping
      * @param $table
      * @return mixed
      */
+    public function getProperties($table)
+    {
+        $nameSpace = $this->reflectionClass->getNamespaceName();
+        $mapping = Mapping::getReader($nameSpace.'\\'.ucfirst($table));
+        return $mapping->getPropertiesMapping();
+    }
+
+    /**
+     * @param $table
+     * @return mixed
+     */
     public function getName($table)
     {
         $nameSpace = $this->reflectionClass->getNamespaceName();

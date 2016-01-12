@@ -119,16 +119,13 @@ abstract class Sql
      */
     private function getPrefixedColumn($tableName)
     {
-        $name = $this->mapping->getName($tableName);
-        
-        $query = "DESCRIBE ".$name ;
-        $sql = $this->queryPDO($query);
-        $tableFields = $sql->fetchAll(\PDO::FETCH_COLUMN);
-        $sql->closeCursor();
+    	$tableFields = array_values($this->mapping->getProperties($tableName));
+    	$name = $this->mapping->getName($tableName);
         
         foreach ($tableFields as $key => $value) {
             $tableFields[$key] = $name.'.'.$value.' as '.$tableName.'_'.$value;
         }
+        
         return implode(', ', $tableFields);
     }
 
