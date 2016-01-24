@@ -36,21 +36,21 @@ abstract class Sql
             	$sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
                 if (!array_key_exists($key, $this->properties)) {
-                    $sql .= $key." = ".$value;
+                    $sql .= '`'.$key.'`'.' = '.$value;
                 } else {
-                    $sql .= $this->tableName.'.'.$this->properties[$key]." = ".$value;
+                    $sql .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' = '.$value;
                 }
             } elseif ($value == 'NULL') {
                 if (!array_key_exists($key, $this->properties)) {
-                    $sql .= $key." IS NULL";
+                    $sql .= '`'.$key.'`'.' IS NULL';
                 } else {
-                    $sql .= $this->tableName.'.'.$this->properties[$key]." IS NULL";
+                    $sql .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' IS NULL';
                 }
             } else {
                 if (!array_key_exists($key, $this->properties)) {
-                    $sql .= $key." = '".addslashes($value)."'";
+                    $sql .= $key.' = \''.addslashes($value).'\'';
                 } else {
-                    $sql .= $this->tableName.'.'.$this->properties[$key]." = '".addslashes($value)."'";
+                    $sql .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' = \''.addslashes($value).'\'';
                 }
             }
         }
@@ -123,7 +123,7 @@ abstract class Sql
     	$name = $this->mapping->getName($tableName);
         
         foreach ($tableFields as $key => $value) {
-            $tableFields[$key] = $name.'.'.$value.' as '.$tableName.'_'.$value;
+            $tableFields[$key] = '`'.$name.'`'.'.'.'`'.$value.'`'.' as '.'`'.$tableName.'_'.$value.'`';
         }
         
         return implode(', ', $tableFields);
@@ -164,7 +164,7 @@ abstract class Sql
                 if (!array_key_exists($key, $this->properties)) {
                     $groupList .= $key.' '.strtoupper($value);
                 } else {
-                    $groupList .= $this->tableName.'.'.$this->properties[$key].' '.strtoupper($value);
+                    $groupList .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' '.strtoupper($value);
                 }
 
             }
@@ -179,19 +179,17 @@ abstract class Sql
      */
     protected function join($join)
     {
-        $sql = '';
+        $sql = [];
+        $column = [];
         foreach ($join as $method => $join) {
             $table = key($join);
-            $column = $this->getPrefixedColumn($table);
-            if ($sql != '') {
-            	$sql .= ' ';
-            }
-            $sql .= strtoupper($method).' JOIN '.$this->mapping->getName($table);
-            $sql .= $this->joinCriteria($join[$table], $table);
+            $column[] = $this->getPrefixedColumn($table);
+            $sql[] = strtoupper($method).' JOIN '.'`'.$this->mapping->getName($table).'`';
+            $sql[] = $this->joinCriteria($join[$table], $table);
         }
         return [
-            'sql' => $sql,
-            'column' => $column
+            'sql' => implode(' ',$sql),
+            'column' => implode(', ',$column)
         ];
     }
 
@@ -202,7 +200,7 @@ abstract class Sql
      */
     private function joinCriteria($criteria, $table)
     {
-        $sql = '' ;
+        $sql = [];
         foreach ($criteria as $boolean => $column) {
             if(!is_array($column)) {
                 $joinMapping = $this->mapping->getPropertieJoinColumn($column, $table);
@@ -211,13 +209,13 @@ abstract class Sql
             }
             foreach ($joinMapping as $key => $value) {
                 if ($this->findOperator($key, $value)) {
-                    $sql .= ' '.$boolean.' '.$this->findOperator($key, $value);
+                    $sql[] = $boolean.' '.$this->findOperator($key, $value);
                 } else {
-                    $sql .= ' '.$boolean.' '.$this->mapping->valueMapping($key)." = ".$this->mapping->valueMapping($value);
+                    $sql[] = $boolean.' '.$this->mapping->valueMapping($key)." = ".$this->mapping->valueMapping($value);
                 }
             }
         }
-        return $sql;
+        return implode(' ',$sql);
     }
 
     /**
@@ -248,7 +246,7 @@ abstract class Sql
                 if (!array_key_exists($key, $this->properties)) {
                     $orderList .= $key.' '.strtoupper($value);
                 } else {
-                    $orderList .= $this->tableName.'.'.$this->properties[$key].' '.strtoupper($value);
+                    $orderList .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' '.strtoupper($value);
                 }
             }
             $orderQuery = ' ORDER BY '.trim($orderList);
@@ -268,7 +266,7 @@ abstract class Sql
         if($maxLine !== false && is_numeric($maxLine)){
             $limit = " LIMIT " . $maxLine ;
         }
-        $sql = $this->queryPDO("SELECT ".$column." FROM ".$this->tableName." ".$query.$limit);
+        $sql = $this->queryPDO("SELECT ".$column." FROM ".'`'.$this->tableName.'`'." ".$query.$limit);
 
         if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {

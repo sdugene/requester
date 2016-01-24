@@ -171,7 +171,7 @@ class Mapping
                 $properties = $mapping->getPropertiesMapping();
                 $column = $properties[$matches[2]];
             }
-            return $table . '.' . $column;
+            return '`'.$table.'`' . '.' . '`'.$column.'`';
         } else {
             return $string;
         }

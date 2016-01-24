@@ -53,9 +53,11 @@ class Request extends Sql
      * @param array $criteria
      * @return int|\PDOStatement|string
      */
-    public function delete($criteria) {
+    public function delete($criteria, $limit = 1) {
         $where = $this->criteria($criteria);
-        $query = "DELETE FROM ".$this->tableName." ".$where." LIMIT 1";
+        if ($where != '') {
+        	$query = "DELETE FROM ".$this->tableName." ".$where." LIMIT ".$limit;
+        }
         return $this->queryPDO($query);
     }
 
@@ -140,7 +142,7 @@ class Request extends Sql
         $orderQuery = $this->order($order);
         $groupQuery = $this->group($group);
         
-        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $this->tableName.'.*, '.$jointer['column']);
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '`'.$this->tableName.'`'.'.*, '.$jointer['column']);
     }
 
     /**
@@ -220,7 +222,7 @@ class Request extends Sql
             if ($values !== '') {
                 $values .= ', ';
             }
-            $columns .= addslashes($this->properties[$key]);
+            $columns .= '`'.addslashes($this->properties[$key]).'`';
 
             $mysqlFunction = str_replace('mysql#','',$value);
             if ($mysqlFunction != $value) {
@@ -229,7 +231,7 @@ class Request extends Sql
                 $values .= "'".addslashes($value)."'";
             }
         }
-        $query = "INSERT INTO ".$this->tableName." (".$columns.") VALUES (".$values.")" ;
+        $query = "INSERT INTO ".'`'.$this->tableName.'`'." (".$columns.") VALUES (".$values.")" ;
         return $this->queryPDO($query);
     }
 
@@ -282,16 +284,16 @@ class Request extends Sql
 
             $mysqlFunction = str_replace('mysql#','',$value);
             if ($mysqlFunction != $value) {
-                $values .= addslashes($this->properties[$key])." = ".$mysqlFunction;
+                $values .= '`'.addslashes($this->properties[$key]).'`'." = ".$mysqlFunction;
             } elseif ($value == 'NULL') {
-            	$values .= addslashes($this->properties[$key])." = ".$value;
+            	$values .= '`'.addslashes($this->properties[$key]).'`'." = ".$value;
             } else {
-                $values .= addslashes($this->properties[$key])." = '".addslashes($value)."'";
+                $values .= '`'.addslashes($this->properties[$key]).'`'." = '".addslashes($value)."'";
             }
         }
 
         $where = $this->criteria($criteria);
-        $query = "UPDATE ".$this->tableName." SET ".$values." ".$where ;
+        $query = "UPDATE ".'`'.$this->tableName.'`'." SET ".$values." ".$where ;
         return $this->queryPDO($query);
     }
 }

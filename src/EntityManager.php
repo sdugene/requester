@@ -44,7 +44,7 @@ class EntityManager
     {
         $request = new Request($entity);
         $table = $request->getClassName();
-        return $request->getMapping()->getName($table) . '.' . $request->getMapping()->getValue($string);
+        return '`'.$request->getMapping()->getName($table).'`'.'.'.'`'.$request->getMapping()->getValue($string).'`';
     }
 
     /**
