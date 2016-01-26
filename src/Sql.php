@@ -36,13 +36,13 @@ abstract class Sql
             	$sql .= '(' . $value . ')';
             } elseif (is_numeric($value) && $key == 'id') {
                 if (!array_key_exists($key, $this->properties)) {
-                    $sql .= '`'.$key.'`'.' = '.$value;
+                    $sql .= $key.' = '.$value;
                 } else {
                     $sql .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' = '.$value;
                 }
             } elseif ($value == 'NULL') {
                 if (!array_key_exists($key, $this->properties)) {
-                    $sql .= '`'.$key.'`'.' IS NULL';
+                    $sql .= $key.' IS NULL';
                 } else {
                     $sql .= '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$key].'`'.' IS NULL';
                 }
@@ -104,10 +104,10 @@ abstract class Sql
         $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
         if (is_array($value) && in_array($key, $operators)) {
-            return $this->tableName.'.'.$this->properties[$value[0]]. " ".$key. " '".addslashes($value[1])."'";
+            return '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$value[0]].'`'. " ".$key. " '".addslashes($value[1])."'";
         }
         elseif (is_array($value) && in_array($key, $arrayOperators)) {
-        	return $this->tableName.'.'.$this->properties[$value[0]]. " " .$key. " ".$value[1];
+        	return '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$value[0]].'`'. " " .$key. " ".$value[1];
         }
         
         return false;
