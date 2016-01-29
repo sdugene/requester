@@ -234,6 +234,17 @@ class Request extends Sql
         $query = "INSERT INTO ".'`'.$this->tableName.'`'." (".$columns.") VALUES (".$values.")" ;
         return $this->queryPDO($query);
     }
+    
+    private function mysqlFunction($value)
+    {
+    	$mysqlFunction = str_replace('mysql#','',$value);
+    	if ($mysqlFunction == 'NULL') {
+    		return null;
+    	} elseif ($mysqlFunction != $value) {
+    		return $mysqlFunction;
+    	}
+    	return $value;
+    }
 
     /**
      * @param $column
@@ -243,7 +254,7 @@ class Request extends Sql
     public function set($column, $value)
     {
         if (!in_array($column, $this->forbidden)){
-            $this->entity->$column = $value;
+        	$this->entity->$column = $this->mysqlFunction($value);
             if (isset($this->entity->id)) {
                 $input = [$column => $value];
                 $criteria = ['id' => $this->entity->id];
