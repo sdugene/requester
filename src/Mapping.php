@@ -108,7 +108,7 @@ class Mapping
                 $values = $this->mappingParse($line);
                 if ($values['name'] == $table) {
                     return [
-                        '@'.strtolower($this->reflectionClass->getShortName()).'.@'.$column
+                        '@'.lcfirst($this->reflectionClass->getShortName()).'.@'.$column
                             => '@'.$table.'.@'. $values['referencedColumnName']
                     ];
                 }
@@ -118,7 +118,7 @@ class Mapping
         if(!is_null($joinColumn)) {
             $values = $this->mappingParse($joinColumn);
             return [
-                '@'.strtolower($this->reflectionClass->getShortName()).'.@'.$column
+                '@'.lcfirst($this->reflectionClass->getShortName()).'.@'.$column
                     => '@'.$table.'.@'. $values['referencedColumnName']
             ];
         }

@@ -181,11 +181,11 @@ abstract class Sql
     {
         $sql = [];
         $column = [];
-        foreach ($join as $method => $join) {
-            $table = key($join);
+        foreach ($join as $method => $joinArray) {
+            $table = key($joinArray);
             $column[] = $this->getPrefixedColumn($table);
             $sql[] = strtoupper($method).' JOIN '.'`'.$this->mapping->getName($table).'`';
-            $sql[] = $this->joinCriteria($join[$table], $table);
+            $sql[] = $this->joinCriteria($joinArray[$table], $table);
         }
         return [
             'sql' => implode(' ',$sql),
