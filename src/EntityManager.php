@@ -47,6 +47,19 @@ class EntityManager
         return '`'.$request->getMapping()->getName($table).'`'.'.'.'`'.$request->getMapping()->getValue($string).'`';
     }
 
+    /// METHODS
+    /**
+     * @param $entity
+     * @param $string
+     * @return string
+     */
+    public function mappingGetJoin($entity, $table, $column)
+    {
+        $request = new Request($entity);
+        $mapping = $request->getMapping();
+        return $mapping->getPropertieJoinColumn($column, $table);
+    }
+
     /**
      * @param $class
      * @return Request|string

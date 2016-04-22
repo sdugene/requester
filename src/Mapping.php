@@ -100,14 +100,14 @@ class Mapping
      * @return array
      */
     public function getPropertieJoinColumn($column, $table) {
-        $joinColumn = $this->reader
-                ->getPropertyAnnotations($this->className, $column)->get('ORM\JoinColumn');
+    	$joinColumn = $this->reader
+            ->getPropertyAnnotations($this->className, $column)->get('ORM\JoinColumn');
         
         if (is_array($joinColumn)) {
             foreach ($joinColumn as $line) {
                 $values = $this->mappingParse($line);
                 if ($values['name'] == $table) {
-                    return [
+                	return [
                         '@'.lcfirst($this->reflectionClass->getShortName()).'.@'.$column
                             => '@'.$table.'.@'. $values['referencedColumnName']
                     ];

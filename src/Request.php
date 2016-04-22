@@ -136,7 +136,7 @@ class Request extends Sql
      */
     private function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
     {
-        $jointer = $this->join($join);
+    	$jointer = $this->join($join);
         $sql = $jointer['sql'];
         $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);

@@ -182,10 +182,17 @@ abstract class Sql
         $sql = [];
         $column = [];
         foreach ($join as $method => $joinArray) {
-            $table = key($joinArray);
-            $column[] = $this->getPrefixedColumn($table);
-            $sql[] = strtoupper($method).' JOIN '.'`'.$this->mapping->getName($table).'`';
-            $sql[] = $this->joinCriteria($joinArray[$table], $table);
+        	$table = key($joinArray);
+	    	$key = key($joinArray[$table]);
+    		if(preg_match('/@([^.]*).@(.*)/', $key, $matches) && preg_match('/@([^.]*).@(.*)/', $joinArray[$table][$key], $matchesTarget)) {
+    			$sql[] = strtoupper($method).' JOIN '.$matchesTarget[1].' ON ';
+	    		$sql[] = $this->mapping->valueMapping($key)." = ".$this->mapping->valueMapping($joinArray[$table][$key]);
+	    		$column[] = $this->getPrefixedColumn($matchesTarget[1]);
+	    	} else {
+        		$column[] = $this->getPrefixedColumn($table);
+            	$sql[] = strtoupper($method).' JOIN '.'`'.$this->mapping->getName($table).'`';
+            	$sql[] = $this->joinCriteria($joinArray[$table], $table);
+	    	}
         }
         return [
             'sql' => implode(' ',$sql),
