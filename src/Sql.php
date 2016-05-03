@@ -274,8 +274,11 @@ abstract class Sql
             $limit = " LIMIT " . $maxLine ;
         }
         $sql = $this->queryPDO("SELECT ".$column." FROM ".'`'.$this->tableName.'`'." ".$query.$limit);
-
-        if ($sql->rowCount() > 0) {
+		
+		/*if (!is_object($sql)) {
+			\Engine\Functions\Debug::print2log("SELECT ".$column." FROM ".'`'.$this->tableName.'`'." ".$query.$limit.' : '.$sql);
+			return [];
+		} else*/if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {
                 $results = $sql->fetchAll(\PDO::FETCH_ASSOC);
                 $this->fill($results[0], $this->entity);
@@ -312,10 +315,10 @@ abstract class Sql
         } else {
             $sql->execute();
             fwrite($fd, date('Y-m-d H:i:s').' - '.$query.' - '.$sql->rowCount().' ligne(s) affectée(s)'."\n");
-            if (preg_match("/INSERT/i", $query)) {
+            if (preg_match("/^INSERT/i", $query)) {
                 $sql->closeCursor();
                 return $bdd->lastInsertId();
-            } elseif (preg_match("/DELETE|UPDATE/i", $query)) {
+            } elseif (preg_match("/^(DELETE|UPDATE)/i", $query)) {
                 $count = $sql->rowCount();
                 $sql->closeCursor();
                 return $count;
