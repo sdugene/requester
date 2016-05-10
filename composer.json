@@ -2,15 +2,16 @@
     "name"        : "siteoffice/requester",
     "type"        : "library",
     "description" : "SiteOffice requester is an object-relational mapper (ORM) for PHP 5.6+",
-    "keywords"    : ["requester"],
-    "homepage"    : "http://www.siteoffice.fr/",
-    "license"     : "MIT",
+    "keywords"    : ["requester","mysql","database"],
+    "homepage"    : "http://www.siteoffice-cms.fr/",
+	"license"     : "MIT",
     "authors"     : [
-        {
-            "name"  : "SiteOffice",
-            "email" : "webmaster@siteoffice.fr"
-        }
-    ],
+		{
+			"name"     : "SiteOffice",
+            "homepage" : "http://www.siteoffice-cms.fr",
+            "email"    : "webmaster@siteoffice.fr"
+		}
+	],
     "require": {
         "minime/annotations"     : "~2.0"
     },
