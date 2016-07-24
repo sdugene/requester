@@ -27,7 +27,7 @@ abstract class Sql
             }
             
             if ($this->findOperator($key, $value)) {
-                $sql .= $this->findOperator($key, $value);
+                $sql .= $this->findOperator($key, $value, $operator);
             } elseif (is_array($value) && is_numeric(key($value))) {
             	$value = $this->criteria($value, $operator, false, false, $key);
             	$sql .= $value;
@@ -98,12 +98,19 @@ abstract class Sql
      * @param $value
      * @return bool|string
      */
-    private function findOperator($key, $value)
+    private function findOperator($key, $value, $operator = 'AND')
     {
         $operators = ['=', '>', '>=', '<', '<=', '!=', 'LIKE'];
         $arrayOperators = ['IN', 'NOT IN', 'IS'];
         
-        if (is_array($value) && in_array($key, $operators)) {
+        if (is_array($value) && in_array($key, $operators) && is_array($value[0])) {
+        	$sqlPart = [];
+        	foreach ($value as $criteria) {
+        		$sqlPart[] = '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$criteria[0]].'`'. " ".$key. " '".addslashes($criteria[1])."'";
+        	}
+            return implode(' '.$operator.' ', $sqlPart);
+        }
+        elseif (is_array($value) && in_array($key, $operators)) {
             return '`'.$this->tableName.'`'.'.'.'`'.$this->properties[$value[0]].'`'. " ".$key. " '".addslashes($value[1])."'";
         }
         elseif (is_array($value) && in_array($key, $arrayOperators)) {
