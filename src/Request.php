@@ -50,6 +50,24 @@ class Request extends Sql
     }
 
     /**
+     * @param int $id
+     * @param array $criteria
+     * @return mixed
+     */
+    public function copy($id, $inputs = []) {
+		$object = $this->findById($id);
+		$array = (array) $object;
+		$finalsInput = array_merge($array, $inputs);
+	    unset($finalsInput['id']);
+	    foreach ($finalsInput as $key => $value) {
+	    	if (!array_key_exists($key, $this->properties) || is_null($value)) {
+	    		unset($finalsInput[$key]);
+	    	}
+	    }
+		return $this->insert($finalsInput);
+    }
+
+    /**
      * @param array $criteria
      * @return int|\PDOStatement|string
      */
