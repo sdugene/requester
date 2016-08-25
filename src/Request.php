@@ -177,7 +177,7 @@ class Request extends Sql
     	
     	if (class_exists('Monolog\Logger')) {
 	    	$clientBuilder = ClientBuilder::create();
-			$clientBuilder->setHosts([LSTCSRCH_HOST.':'.LSTCSRCH_PORT]);
+	    	$clientBuilder->setHosts([LSTCSRCH_USER.':'.LSTCSRCH_PWD.'@'.LSTCSRCH_HOST.':'.LSTCSRCH_PORT]);
 			$client = $clientBuilder->build();
 	    	
 	    	$logger = new Logger(SITE);
@@ -185,7 +185,7 @@ class Request extends Sql
 			    new ElasticsearchHandler($client, ['index' => 'logs', 'type' => 'log'])
 			);
 			
-			$logger->warn($title, ['message' => $expression, 'debug' => $debug]);
+			$logger->debug($title, ['message' => $expression, 'debug' => $debug]);
     	
     	} else {
     		$fd = fopen( ROOT . "debug/sql.log", "a+");
