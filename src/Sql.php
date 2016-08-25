@@ -314,14 +314,12 @@ abstract class Sql
     	
         $sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
 
-        $fd = fopen( ROOT . "debug/sql.log", "a+");
-
         if (!$sql) {
             $error = $bdd->errorInfo();
-            fwrite($fd, date('Y-m-d H:i:s').' - '.$query.' : '.$error[2]."\n");
+            $this->log($query.' : '.$error[2]);
         } else {
             $sql->execute();
-            fwrite($fd, date('Y-m-d H:i:s').' - '.$query.' - '.$sql->rowCount().' ligne(s) affectée(s)'."\n");
+            $this->log($query.' - '.$sql->rowCount());
             if (preg_match("/^INSERT/i", $query)) {
                 $sql->closeCursor();
                 return $bdd->lastInsertId();
@@ -333,6 +331,5 @@ abstract class Sql
                 return $sql;
             }
         }
-        fclose($fd);
     }
 }

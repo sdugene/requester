@@ -1,6 +1,9 @@
 <?php
 
 namespace Requester;
+use Atrapalo\Monolog\Handler\ElasticsearchHandler;
+use Elasticsearch\ClientBuilder;
+use Monolog\Logger;
 
 /**
  * Description of Request
@@ -161,6 +164,38 @@ class Request extends Sql
         $groupQuery = $this->group($group);
         
         return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '`'.$this->tableName.'`'.'.*, '.$jointer['column']);
+    }
+    
+    /**
+     * @return void
+     */
+    protected function log($expression, $title = 'SQL Debug', $debug = [])
+    {
+    	if (!is_array($debug) || empty($debug)) {
+        	$debug = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+    	}
+    	
+    	if (class_exists('Monolog\Logger')) {
+	    	$clientBuilder = ClientBuilder::create();
+			$clientBuilder->setHosts([LSTCSRCH_HOST.':'.LSTCSRCH_PORT]);
+			$client = $clientBuilder->build();
+	    	
+	    	$logger = new Logger(SITE);
+			$logger->pushHandler(
+			    new ElasticsearchHandler($client, ['index' => 'logs', 'type' => 'log'])
+			);
+			
+			$logger->warn($title, ['message' => $expression, 'debug' => $debug]);
+    	
+    	} else {
+    		$fd = fopen( ROOT . "debug/sql.log", "a+");
+    		fwrite($fd, $title . " ". date('Y-m-d H:i:s').' - '.$expression.' : '.$debug."\n");
+    		fclose($fd);
+    		//Functions\Debug::print2log($expression, $title,	$debug);
+    		
+		    ini_set('log_errors', 1);
+		    ini_set('error_log', ROOT . '/debug/php.log');
+    	}
     }
 
     /**

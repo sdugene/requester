@@ -12,8 +12,11 @@
             "email"    : "webmaster@siteoffice.fr"
 		}
 	],
-    "require": {
-        "minime/annotations"     : "~2.0"
+    "require": {    
+        "minime/annotations"             : "~2.0",
+        "elasticsearch/elasticsearch"    : "~2.0",
+		"monolog/monolog"                : "~1.6",
+        "atrapalo/monolog-elasticsearch" : "1.0.1"
     },
     "autoload": {
         "psr-4": {
