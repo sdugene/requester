@@ -2,11 +2,6 @@
 
 namespace Requester;
 
-/**
- * Description of Sql
- *
- * @author Sébastien Dugène
- */
 abstract class Sql
 {
     /**
@@ -282,10 +277,7 @@ abstract class Sql
         }
         $sql = $this->queryPDO("SELECT ".$column." FROM ".'`'.$this->tableName.'`'." ".$query.$limit);
 		
-		/*if (!is_object($sql)) {
-			\Engine\Functions\Debug::print2log("SELECT ".$column." FROM ".'`'.$this->tableName.'`'." ".$query.$limit.' : '.$sql);
-			return [];
-		} else*/if ($sql->rowCount() > 0) {
+		if ($sql->rowCount() > 0) {
             if ($maxLine === 1) {
                 $results = $sql->fetchAll(\PDO::FETCH_ASSOC);
                 $this->fill($results[0], $this->entity);
@@ -312,13 +304,9 @@ abstract class Sql
     		$bdd = Pdo::getBddWithParams($this->dbUser, $this->dbPassword, $this->dbHost, $this->dbName);
     	}
     	
-        $sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
-
-        if (!$sql) {
-            $error = $bdd->errorInfo();
-            $this->log($query.' : '.json_encode($error));
-        } else {
-            $sql->execute();
+        try {
+			$sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
+			$sql->execute();
             if (DEBUG_MODE) {
             	$this->log($query.' - '.$sql->rowCount());
             }
@@ -332,6 +320,9 @@ abstract class Sql
             } else {
                 return $sql;
             }
-        }
+			
+		} catch (Exception $e) {
+		    $this->log($query.' Error : '.$e->getMessage());
+		}
     }
 }
