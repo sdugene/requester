@@ -316,10 +316,12 @@ abstract class Sql
 
         if (!$sql) {
             $error = $bdd->errorInfo();
-            $this->log($query.' : '.$error[2]);
+            $this->log($query.' : '.json_encode($error));
         } else {
             $sql->execute();
-            $this->log($query.' - '.$sql->rowCount());
+            if (DEBUG_MODE) {
+            	$this->log($query.' - '.$sql->rowCount());
+            }
             if (preg_match("/^INSERT/i", $query)) {
                 $sql->closeCursor();
                 return $bdd->lastInsertId();

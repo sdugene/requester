@@ -191,7 +191,6 @@ class Request extends Sql
     		$fd = fopen( ROOT . "debug/sql.log", "a+");
     		fwrite($fd, $title . " ". date('Y-m-d H:i:s').' - '.$expression.' : '.$debug."\n");
     		fclose($fd);
-    		//Functions\Debug::print2log($expression, $title,	$debug);
     		
 		    ini_set('log_errors', 1);
 		    ini_set('error_log', ROOT . '/debug/php.log');
