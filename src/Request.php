@@ -267,6 +267,15 @@ class Request extends Sql
     {
         $columns = '';
         $values = '';
+        
+        if (array_key_exists('created', $this->properties)) {
+        	$input['created'] = date('Y-m-d H:i:s');
+        }
+        
+        if (array_key_exists('updated', $this->properties)) {
+        	$input['updated'] = date('Y-m-d H:i:s');
+        }
+        
         foreach ($input as $key => $value) {
             if ($columns !== '') {
                 $columns .= ', ';
@@ -340,6 +349,10 @@ class Request extends Sql
     public function update($input, $criteria)
     {
         $values = '';
+        if (array_key_exists('updated', $this->properties)) {
+        	$input['updated'] = date('Y-m-d H:i:s');
+        }
+        
         foreach ($input as $key => $value) {
             if ($values !== '') {
                 $values .= ', ';
