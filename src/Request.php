@@ -172,7 +172,7 @@ class Request extends Sql
     protected function log($expression, $title = 'SQL Debug', $debug = [])
     {
     	if (!is_array($debug) || empty($debug)) {
-        	$debug = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+        	$debug = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 0);
     	}
     	
     	if (class_exists('Monolog\Logger')) {
