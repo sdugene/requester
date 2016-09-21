@@ -264,6 +264,29 @@ abstract class Sql
     }
 
     /**
+     * @param $order
+     * @return string
+     */
+    protected function groupOrder($groupOrder)
+    {
+        $groupOrderQuery = '*';
+        if ($groupOrder !== false) {
+            foreach($groupOrder as $key => $value) {
+                if ($groupOrderQuery !== '') {
+                    $groupOrderQuery .= ', ';
+                }
+                if ($value == 'DESC') {
+                	$groupOrderQuery .= 'max('.'`'.$this->tableName.'`'.'.'.'`'.$key.'`'.') as '.'`'.$key.'`';
+                } else {
+                	$groupOrderQuery .= 'min('.'`'.$this->tableName.'`'.'.'.'`'.$key.'`'.') as '.'`'.$key.'`';
+                }
+                
+            }
+        }
+        return $groupOrderQuery;
+    }
+
+    /**
      * @param $query
      * @param bool|false $maxLine
      * @param string $column

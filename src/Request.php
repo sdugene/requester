@@ -98,6 +98,7 @@ class Request extends Sql
          *  $args[2] : $limit
          *  $args[3] : $order
          *  $args[4] : $group
+         *  $args[5] : $groupOrder
          */
         $args = $this->getArgs(func_get_args());
         
@@ -110,11 +111,11 @@ class Request extends Sql
         }
         
         if (is_array($args[1]) && !empty($args[1])) {
-            return $this->findWithJoin($args[0], $args[1], $args[2], $args[3], $args[4]);
+            return $this->findWithJoin($args[0], $args[1], $args[2], $args[3], $args[4], $args[5]);
         }
         
         if (is_array($args[0])) {
-            return $this->findByCriteria($args[0], $args[1], $args[2], $args[3]);
+            return $this->findByCriteria($args[0], $args[1], $args[2], $args[3], $args[4]);
         }
     }
 
@@ -138,13 +139,14 @@ class Request extends Sql
      * @param bool|false $group
      * @return array
      */
-    private function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false)
+    private function findByCriteria($criteria = [], $maxLine = false, $order = false, $group = false, $groupOrder = false)
     {
         $sql = $this->criteria($criteria);
         $orderQuery = $this->order($order);
         $groupQuery = $this->group($group);
+        $groupOrder = $this->groupOrder($groupOrder);
         
-        return $this->query($sql.$groupQuery.$orderQuery, $maxLine);
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, $groupOrder);
     }
 
     /**
@@ -155,15 +157,16 @@ class Request extends Sql
      * @param bool|false $group
      * @return array
      */
-    private function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false)
+    private function findWithJoin($criteria = [], $join = [], $maxLine = false, $order = false, $group = false, $groupOrder = false)
     {
     	$jointer = $this->join($join);
         $sql = $jointer['sql'];
         $sql .= ' '.$this->criteria($criteria);
         $orderQuery = $this->order($order);
         $groupQuery = $this->group($group);
+        $groupOrder = $this->groupOrder($groupOrder);
         
-        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '`'.$this->tableName.'`'.'.*, '.$jointer['column']);
+        return $this->query($sql.$groupQuery.$orderQuery, $maxLine, '`'.$this->tableName.'`'.'.'.$groupOrder.', '.$jointer['column']);
     }
     
     /**
@@ -202,7 +205,7 @@ class Request extends Sql
      * @param int $max
      * @return mixed
      */
-    private function getArgs($args, $max = 5)
+    private function getArgs($args, $max = 6)
     {
         for($j = 0 ; $j < $max ; $j++) {
             if (!array_key_exists($j, $args) && $j < 2) {
