@@ -99,7 +99,8 @@ class Mapping
      * @param $table
      * @return array
      */
-    public function getPropertieJoinColumn($column, $table) {
+    public function getPropertieJoinColumn($column, $table)
+    {
     	$joinColumn = $this->reader
             ->getPropertyAnnotations($this->className, $column)->get('ORM\JoinColumn');
         
@@ -128,7 +129,8 @@ class Mapping
      * @param $tring
      * @return mixed
      */
-    public function getValue($tring) {
+    public function getValue($tring)
+    {
         return $this->propertiesMappingColumn[$tring];
     }
 
