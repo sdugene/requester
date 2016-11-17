@@ -43,7 +43,8 @@ class Request extends Sql
      * @param array $criteria
      * @return mixed
      */
-    public function count($column = 'id', $criteria = []) {
+    public function count($column = 'id', $criteria = [])
+    {
         $sqlPart = $this->criteria($criteria);
         $query = "SELECT count(".$this->properties[$column].") as count FROM ".$this->tableName." ".$sqlPart;
         $sql = $this->queryPDO($query);
@@ -57,7 +58,8 @@ class Request extends Sql
      * @param array $criteria
      * @return mixed
      */
-    public function copy($id, $inputs = []) {
+    public function copy($id, $inputs = [])
+    {
 		$object = $this->findById($id);
 		$array = (array) $object;
 		$finalsInput = array_merge($array, $inputs);
@@ -74,12 +76,26 @@ class Request extends Sql
      * @param array $criteria
      * @return int|\PDOStatement|string
      */
-    public function delete($criteria, $limit = 1) {
+    public function delete($criteria, $limit = 1)
+    {
+        if (is_array($limit)) return $this->deleteWithJoin($criteria, $limit);
+        
         $where = $this->criteria($criteria);
         if ($where != '') {
         	$query = "DELETE FROM ".$this->tableName." ".$where." LIMIT ".$limit;
+            return $this->queryPDO($query);
         }
-        return $this->queryPDO($query);
+    }
+    
+    private function deleteWithJoin($criteria, $join)
+    {
+        $jointer = $this->join($join);
+        $sql = $jointer['sql'];
+        $sql .= ' '.$this->criteria($criteria);
+        if ($sql != '') {
+        	$query = "DELETE ".$this->tableName." FROM ".$this->tableName." ".$sql;
+            return $this->queryPDO($query);
+        }
     }
 
     /**
