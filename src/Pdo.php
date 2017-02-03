@@ -26,6 +26,7 @@ class Pdo
         try {
             $bdd = new \PDO('mysql:host='.$host.';dbname='.$database, $user, $password);
             $bdd->exec('SET CHARACTER SET UTF8');
+            $bdd->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
             $bdd->setAttribute(\PDO::ATTR_EMULATE_PREPARES,false);
             return $bdd ;
         } catch(Exception $e) {
