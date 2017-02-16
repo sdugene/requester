@@ -67,7 +67,7 @@ abstract class Sql
         $properties = $this->reflectionClass->getProperties();
         foreach ($properties as $property)
         {
-        	$key = $property->name;
+            $key = $property->name;
         	if (array_key_exists($key, $this->properties)) {
         		$name = $this->properties[$key];
         	} elseif (array_key_exists($key, $this->joinedProperties)) {
@@ -77,13 +77,16 @@ abstract class Sql
         	}
         	
         	
-        	if ($property->isPrivate()){
-        		// DO NOTHING
-        	} elseif(array_key_exists($name, $result)) {
-        		$entity->$key = $result[$name];
-        	} else {
-        		$entity->$key = null;
-        	}
+        	if ($property->isPrivate()) {
+                // DO NOTHING
+            } elseif ($property->isProtected()) {
+                $setter = 'set'.ucfirst($key);
+                $entity->$setter($result[$name]);
+            } elseif(array_key_exists($name, $result)) {
+                $entity->$key = $result[$name];
+            } else {
+                $entity->$key = null;
+           }
         }
         return $entity;
     }
