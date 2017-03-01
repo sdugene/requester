@@ -37,6 +37,17 @@ class EntityManager
     /// METHODS
     /**
      * @param $entity
+     * @return Mapping
+     */
+    public function getMapping($entity)
+    {
+        $request = new Request($entity);
+        $table = $request->getClassName();
+        return $request->getMapping();
+    }
+    
+    /**
+     * @param $entity
      * @param $string
      * @return string
      */

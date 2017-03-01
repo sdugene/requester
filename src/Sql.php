@@ -335,13 +335,17 @@ abstract class Sql
     	
         try {
 			$sql = $bdd->prepare($query, [\PDO::ATTR_CURSOR => \PDO::CURSOR_SCROLL]);
-			$sql->execute();
+			$result = $sql->execute();
             if (DEBUG_MODE) {
             	$this->log($query.' - '.$sql->rowCount());
             }
             if (preg_match("/^INSERT/i", $query)) {
                 $sql->closeCursor();
-                return $bdd->lastInsertId();
+                if ($bdd->lastInsertId()) {
+                    return $bdd->lastInsertId();
+                } else {
+                    return $result;
+                }
             } elseif (preg_match("/^(DELETE|UPDATE)/i", $query)) {
                 $count = $sql->rowCount();
                 $sql->closeCursor();
