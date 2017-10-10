@@ -380,9 +380,13 @@ class Request extends Sql
             $mysqlFunction = str_replace('mysql#','',$value);
             if ($mysqlFunction != $value) {
                 $values .= '`'.addslashes($this->properties[$key]).'`'." = ".$mysqlFunction;
-            } elseif ($value == 'NULL') {
-            	$values .= '`'.addslashes($this->properties[$key]).'`'." = ".$value;
-            } else {
+            }
+            
+            elseif ($value == 'NULL' || $value == null) {
+            	$values .= '`'.addslashes($this->properties[$key]).'`'." = NULL";
+            }
+            
+            else {
                 $values .= '`'.addslashes($this->properties[$key]).'`'." = '".addslashes($value)."'";
             }
         }
