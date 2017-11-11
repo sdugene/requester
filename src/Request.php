@@ -296,6 +296,8 @@ class Request extends Sql
         }
         
         foreach ($input as $key => $value) {
+            if ($value == 'NULL') $value = 'mysql#NULL';
+            
             if ($columns !== '') {
                 $columns .= ', ';
             }
